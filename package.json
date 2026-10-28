@@ -1,0 +1,13 @@
+{
+  "name": "financial-human-model",
+  "version": "0.2.0",
+  "private": false,
+  "type": "module",
+  "description": "A local parameter experiment lab for the Financial Human Model.",
+  "scripts": {
+    "build": "node scripts/build-offline.mjs",
+    "test": "node --test test/*.test.mjs",
+    "start": "node scripts/serve.mjs"
+  },
+  "license": "MIT"
+}

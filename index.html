@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="金融学人模型实验台：调整变量与参数，比较系统响应，查看计算依据。" />
+  <title>金融学人 · 模型实验台</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top"><span class="brand-mark">FH</span>金融学人 <span class="version">LAB 0.2</span></a>
+    <nav aria-label="页面导航"><a href="#workspace">实验工作区</a><a href="#parameters">参数</a><a href="#method">计算依据</a></nav>
+    <span class="local-badge"><i></i> 本地运行</span>
+  </header>
+  <main id="top">
+    <section class="hero">
+      <div><p class="eyebrow">FINANCIAL HUMAN MODEL / EXPERIMENT LAB</p><h1>调整假设，观察系统响应。</h1><p class="hero-copy">固定一组基准，改变状态、行动或参数，比较收益、成本和状态路径。</p></div>
+      <div class="hero-index"><b>06</b><span>状态系统<br />同一套计算规则</span></div>
+    </section>
+    <div id="boot-message" class="notice">正在加载计算模块。请将 index.html、styles.css 和 app.offline.js 保存在同一目录。</div>
+    <noscript><p class="notice">启用浏览器 JavaScript 后可运行模型计算。</p></noscript>
+    <section class="experiment-toolbar" aria-label="实验管理">
+      <div><span class="small-label">固定基准</span><strong id="baseline-label">默认输入与参数</strong><span id="change-count" class="change-count">0 项改动</span></div>
+      <div class="button-row"><button id="pin-button" class="button primary" type="button">设为基准</button><button id="restore-button" class="button" type="button">恢复基准</button><button id="reset-button" class="button quiet" type="button">实验组恢复默认</button></div>
+    </section>
+    <p id="operation-status" class="operation-status" role="status" aria-live="polite">实验保留在当前页面；刷新后恢复默认。</p>
+    <p id="draft-status" class="notice error" role="alert" hidden></p>
+    <section class="summary-grid" aria-label="初始时点计算结果">
+      <article class="summary-card featured"><p>初始模型净值 <span>Net₀</span></p><strong id="net-value">—</strong><div><span id="net-reference">基准 —</span><b id="net-delta">Δ —</b></div></article>
+      <article class="summary-card"><p>加权效用 <span>U₀</span></p><strong id="utility-total">—</strong><div><span id="utility-reference">基准 —</span><b id="utility-delta">Δ —</b></div></article>
+      <article class="summary-card"><p>成本合计 <span>Cost₀</span></p><strong id="cost-total">—</strong><div><span id="cost-reference">基准 —</span><b id="cost-delta">Δ —</b></div></article>
+    </section>
+    <div class="workspace" id="workspace">
+      <aside class="input-column">
+        <section class="panel control-panel"><div class="panel-heading"><div><p class="eyebrow">01 / INITIAL STATE</p><h2>初始状态</h2></div><span class="badge">0–100</span></div><p class="caption">直接设置六系统的起点。欲望身份保留两个分量。</p><div id="state-controls"></div></section>
+        <section class="panel control-panel"><div class="panel-heading"><div><p class="eyebrow">02 / ACTIONS</p><h2>行动与冲击</h2></div></div><p class="caption">前五项为时间份额，总量 100%。投资和风险暴露单列。</p><div id="action-controls"></div><div id="shock-control"></div><p class="input-note" id="time-summary"></p></section>
+      </aside>
+      <div class="output-column">
+        <section class="panel radar-panel">
+          <div class="panel-heading"><div><p class="eyebrow">03 / STATE COMPARISON</p><h2>六系统对照</h2></div><div class="segmented" aria-label="雷达时点"><button type="button" data-radar="initial" class="active" aria-pressed="true">初始状态</button><button type="button" data-radar="final" aria-pressed="false" id="radar-final-label">第 4 周</button></div></div>
+          <div class="chart-legend"><span><i class="solid"></i>实验组</span><span><i class="dashed"></i>固定基准</span><span id="radar-period">初始状态 · 0–100</span></div>
+          <div class="radar-layout"><svg id="radar-chart" viewBox="0 0 400 360" role="img" aria-label="六系统状态对照雷达图"></svg><div id="radar-values" class="radar-values"></div></div>
+        </section>
+        <section class="panel"><div class="panel-heading"><div><p class="eyebrow">04 / CONSTRAINTS</p><h2>初始约束红线</h2></div><span id="constraint-status" class="status-pill">—</span></div><div id="constraint-list" class="constraint-list"></div><p class="caption">细线标出软阈值与硬线；数值显示实际用量。推演保留越界情景，便于比较其影响。</p></section>
+        <section class="panel"><div class="panel-heading"><div><p class="eyebrow">05 / COMPONENTS</p><h2>初始收益与成本</h2></div></div><div class="components-grid"><div><h3>效用分项</h3><div id="utility-bars"></div></div><div><h3>成本分项</h3><div id="cost-bars"></div></div></div><p class="caption">灰色刻线表示基准；数值依次为实验组 / 基准。</p></section>
+      </div>
+    </div>
+    <section id="parameters" class="parameter-section">
+      <div class="section-heading"><div><p class="eyebrow">06 / PARAMETERS</p><h2>把计算假设放到台面上</h2><p class="caption">权重影响净值组成；转移参数影响状态路径。展开任一组开始调整。</p></div><button id="reset-parameters-button" class="button" type="button">参数恢复默认</button></div>
+      <div id="parameter-groups" class="parameter-groups"></div>
+    </section>
+    <section class="panel trajectory-panel">
+      <div class="panel-heading"><div><p class="eyebrow">07 / HYPOTHETICAL TRAJECTORY</p><h2>假设推演</h2></div><div class="segmented" aria-label="推演周期"><button type="button" data-weeks="4" class="active" aria-pressed="true">4 周</button><button type="button" data-weeks="12" aria-pressed="false">12 周</button></div></div>
+      <p class="caption">两组使用相同周期；行动份额保持固定，外部冲击按留存率逐周衰减。</p>
+      <div class="forecast-layout"><div><div id="forecast-chart"></div><div id="forecast-legend" class="forecast-legend"></div><p class="caption">同色实线为实验组，虚线为基准。状态值限定在 0–100。</p></div><div class="forecast-side"><span class="small-label" id="forecast-title">第 4 周模型净值</span><strong id="forecast-net">—</strong><p id="forecast-comparison"></p><div id="forecast-boundaries"></div></div></div>
+    </section>
+    <section class="panel changes-panel"><div class="panel-heading"><div><p class="eyebrow">08 / EXPERIMENT LOG</p><h2>相对基准的改动</h2></div></div><div id="changes-list"></div></section>
+    <section class="method-section" id="method">
+      <div class="section-heading"><div><p class="eyebrow">09 / CALCULATION NOTES</p><h2>从输入到结果</h2></div><span class="badge">规则版本 0.2</span></div>
+      <div class="method-intro"><p><b>原模型结构</b>　六系统状态 → 资源配置 → 效用与成本 → 下一期状态。原文定义四类成本：情绪功能损失、风险超限、欲望错配和健康透支。</p><p><b>本版实现</b>　状态采用 0–100 指标，效用加权平均，成本按阈值计算；预算压力为原型扩展项。各系统使用独立转移式，净值用于结果对照。参数是研究初始假设，尚未用个体数据校准，曲线表示这些假设下的系统响应。</p></div>
+      <details open><summary>初始净值怎样计算</summary><div id="calculation-detail"></div></details>
+      <details><summary>约束公式与当前代入值</summary><div id="constraint-detail"></div></details>
+      <details><summary>下一周状态怎样变化</summary><div id="transition-detail"></div></details>
+    </section>
+    <footer><span>金融学人 / MODEL LAB</span><span>本地计算 · 会话内实验 · MIT 开源代码</span></footer>
+  </main>
+  <script defer src="./app.offline.js"></script>
+</body>
+</html>

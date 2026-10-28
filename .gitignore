@@ -1,0 +1,15 @@
+# Local system files and development dependencies
+.DS_Store
+node_modules/
+coverage/
+*.log
+.env
+.env.*
+
+# Local working materials, backups, and generated documents
+/tmp/
+/output/
+/docs/
+/financial-human-model-optimization-handoff.md
+*.pdf
+*.docx
