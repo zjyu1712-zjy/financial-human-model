@@ -1,0 +1,12 @@
+import {readFile,writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {syntheticDiary} from '../test/diary-cases.mjs';
+const root=new URL('../',import.meta.url);
+const [html,css,bundle,runner,layout]=await Promise.all(['index.html','styles.css','app.offline.js','test/browser-check.js','test/browser-layout.mjs'].map(p=>readFile(new URL(p,root),'utf8')));
+const integrity=Object.fromEntries([['index.html',html],['styles.css',css],['app.offline.js',bundle]].map(([name,text])=>[name,createHash('sha256').update(text).digest('hex')]));
+const source=html.replace('<link rel="stylesheet" href="styles.css">',`<style>${css}</style>`).replace('<script defer src="app.offline.js"></script>',`<script>${bundle}</script>`);
+const runnerIntegrity=Object.fromEntries([['test/browser-check.js',runner],['test/browser-layout.mjs',layout]].map(([name,text])=>[name,createHash('sha256').update(text).digest('hex')]));
+const browserRunner=layout.replace(/^export /gm,'')+'\n'+runner;
+const data=JSON.stringify({source,integrity,runnerIntegrity,diaryFixture:syntheticDiary().d}).replace(/</g,'\\u003c');
+await writeFile(new URL('browser-check.html',root),`<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>金融学人1.2 浏览器回归</title><style>body{font:14px/1.6 system-ui;margin:24px;color:#202124}button{font:inherit;padding:8px 14px;margin:0 8px 12px 0;cursor:pointer}#preview{max-width:100%;overflow:auto;border:1px solid #ddd}iframe{display:block;border:0;height:800px;background:white}pre{white-space:pre-wrap;overflow-wrap:anywhere}h1{font-size:22px}li{margin:6px 0}</style><h1>金融学人1.2 浏览器回归</h1><p>检查器：折叠区域可见性修正版 · 120项</p><p>测试使用独立数据，检查四种窗口宽度、五步流程、自动联动、输入保留与页面溢出。不会修改你的个人存档。</p><button id="run">运行完整检查</button><button id="download" disabled>导出检查报告</button><p id="status" role="status">等待运行</p><pre id="results"></pre><div id="preview"></div><script>window.QA_BUILD=${data};</script><script>${browserRunner}</script></html>`);
+console.log('browser-check.html built with source SHA256 values');
