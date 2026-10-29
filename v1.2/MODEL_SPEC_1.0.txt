@@ -1,0 +1,587 @@
+金融学人模型 1.0：变量、方程、核算边界与用途
+日期：2026-10-29
+基线：GitHub v0.2.0，提交 7e0c11da4592e1b1e9d98c3c6d32571cca822f69
+状态：可计算的研究原型；所有未拟合系数均为建模假设，不是经验定律。
+
+一、先回答“有什么用”
+
+本工具用于个人方案的结构化对照与复盘，不用于评价人的价值。
+输入自己的资源、状态和备选行动，看到：
+1. 方案能否在 168 小时和现金余额内执行。
+2. 收益对应什么代价：现金、疲劳、知识、关系与体验不强制合成一个答案。
+3. 判断依赖哪些假设；小幅改参数是否会改变结果。
+4. 下一步应记录什么，才能判断假设是否贴近自己。
+
+可尝试的问题：
+- 在不削减睡眠的前提下，增加学习时间要从哪里挪？
+- 减少加班带来的收入变化，是否值得换取更多恢复？
+- 每周增加一笔品质消费，会把现金缓冲降低到哪里？
+- 同样的资金，保留现金和增加风险资产分别带来什么敞口？
+
+不能从本工具推出：
+- 某个人“值多少分”、是否应该被雇用、贷款或获得教育机会。
+- 健康诊断、治疗建议、收益承诺、证券买卖建议或真实市场概率。
+- 某种情绪一定带来某个精确经济损失。
+- 全局最优人生：当前比较用户指定方案，没有自动求解最优策略。
+
+二、原版保留方式
+
+项目根目录 index.html、src/、README.md 和测试未改动，继续作为 v0.2 对照。
+另有 backups/financial-human-model-v0.2-7e0c11d.tar.gz，包含该提交全部受 Git 跟踪文件。
+归档 SHA256：cd89d82b224cf2ab44213805fd4a2c71458f136b3689c2fab2137acf37dc637e
+早期 PDF 和说明仍在原工作区的 test projetct 目录，没有替换。
+v0.3/index.html 保留为本次升级前的对照。1.0 位于 v1.0/index.html。
+1.0 的 model.js 与 marginal.js 和 v0.3 逐字一致；默认数学参数未改变。
+v0.2 与后续版本的分数口径不同，不应直接比较数值高低；对照的是机制与行为。
+独立发布包仅包含1.0，旧版留在原本地项目，不在包中重复附带。
+
+三、四层结构及变量字典
+
+L1 实际资源：小时、人民币；用于资源恒等式，不与心理分数直接相加。
+L2 状态与机制：0–100 指标、效率比例、情绪行为通道。
+L3 动态：每周状态与现金、持仓、负债的更新。
+L4 评价：个人效用权重、直接不适成本、贴现累计效用。
+
+完整字段定义以 src/schema.js 为准。页面“完整变量字典”列出代码名、单位、定义。
+22 个状态输入：
+B：health 健康、sleepQuality 睡眠质量、fatigue 累积疲劳，单位均为分。
+Cog：knowledge 任务知识、calibration 判断校准、metacognition 自知复盘、bias 偏差，单位为分。
+Emo：regulation 调节、rumination 反刍、stress 累积压力、motivation 动机，单位为分。
+Soc：support 可用支持、trust 信任、network 机会触达、conflict 冲突，单位为分。
+Fin：cash 现金、assets 风险资产市值、debt 本金，单位为元；资产包含已买入的风险资产。
+Des：clarity 价值清晰、agency 自主感、comparison 比较压力，单位为分；targetSpend 期望品质支出，元/周。
+
+18 个行动及冲击输入：
+sleep、work、learn、exercise、relation、leisure、care：小时/周。
+wage：元/有效小时；这是有效工时计酬假设，不适用于直接解释固定薪资。
+essential、discretionary、learningSpend、buy、sell、repay：元/周。
+valueFit：分，当前行动与个人价值匹配程度；并非资产或消费金额。
+marketShock：当周额外收益比例；healthShock：健康损耗分；incomeShock：收入变动比例。
+
+参数与偏好：
+13 个机制/评价参数、6 个效用权重，范围和默认值见 schema.js。
+0–100 分是相对本人、相对指定任务的观察指标，当前不支持跨人比较。
+归一化到同一范围并不证明量表有效；精确系数需要研究或实际记录支持。
+
+四、六系统内部观察函数
+
+记 clip(x)=限制到[0,100]，sat(x,k)=100*(1-exp(-max(0,x)/k))。
+分数截断只用于指标或有限状态，不截断现金和净财富到 100。
+
+B = clip(.45 health + .30 sleepQuality + .25*(100-fatigue))。
+focus = clip(.60 B + .40*(100-rumination))。
+Cog = clip((.35 knowledge + .25 calibration + .25 metacognition + .15 focus)*(1-.35*bias/100))。
+Emo = clip(.35 regulation + .25 motivation + .20*(100-rumination) + .20*(100-stress))。
+Soc = clip(.45 support + .35 trust + .20 network - .20 conflict)。
+reserveWeeks = cash / essential。
+reserveScore = clip(100*reserveWeeks/bufferWeeks)。
+solvencyScore = clip(100*(cash+assets)/(cash+assets+debt+1))；常数 1 的单位为元，用于避免零分母。
+Fin = clip(.65 reserveScore + .35 solvencyScore)。
+Des = clip(.40 clarity + .30 agency + .30*(100-comparison))。
+netWorth = cash + assets - debt，单位元，允许为负。
+
+含义：Fin 是当前流动性与偿债覆盖的展示分，不是财富本身。
+尚未建模：收入稳定性、保险、不同债务期限、资产相关性、复杂关系网络。
+本版不重新套用 CES 或多个因子相乘；函数形式先明确解释，再由证据选择。
+
+五、有效投入与情绪的六条通道
+
+timeUse = sleep + work + learn + exercise + relation + leisure + care <= 168。
+sleepDebt = max(0,56-sleep)，单位小时；56 是可修改的研究假设，不是个体医疗建议。
+load = clip(.50 work + .30 care + .35 stress + .25 comparison + .20 rumination + 1.2 sleepDebt)。
+capacity = clip(.40 regulation + .20 support + .15 sleepQuality + .25 sat(leisure+relation,14))。
+strain = max(0,load-capacity)。告警与情绪成本使用同一超额阈值。
+上式中的小时到分数系数具有“分/小时”单位；分数到分数系数无量纲。
+
+六条通道不是可直接相加的同单位成本：
+1. judgmentLoss = clip(.25 strain + .15 bias,0,60)，百分数；降低有效工作。
+2. consumptionLeak = discretionary*.15*strain/100，元/周；只进入实际现金支出。
+3. riskMultiplier = 1+.50*bias/100+.50*strain/100，无量纲；放大周波动。
+4. relationshipDamage = .05 strain，信任分/周；进入下一期关系状态。
+5. healthWear = .08 strain，疲劳分/周；进入下一期疲劳。
+6. agencyLoss = .15 strain，自主感分；仅降低当期自主效用中的主体感。
+
+workEfficiency = sqrt(health/100)*(.35+.65*Cog/100)*(1-.6*fatigue/100)*(1-judgmentLoss/100)，截断[0,1]。
+learningEfficiency = B/100*(.4+.6*motivation/100)*(1-bias/150)*(1-strain/150)，截断[0,1]。
+effectiveWork = work*workEfficiency，有效小时/周。
+effectiveLearn = learn*learningEfficiency，有效小时/周。
+
+边界：并非每种情绪都被定义为有害。这里描述超出调节容量的负荷和偏差代理。
+威胁、羞耻、愤怒、低唤醒、兴奋等具体情绪类型尚未分别估计；保留为后续问卷研究。
+六通道有了可计算入口，但系数不是实际测量到的情绪因果效应。
+
+六、现金、资产和债务守恒
+
+income = wage*effectiveWork*max(0,1+incomeShock*shockFactor)。
+interest = debt*debtAPR/52。
+principal = min(repay,debt)，还清后不再额外支付本金。
+spending = essential + discretionary + learningSpend + consumptionLeak。
+cashNext = cash + income - spending - interest - principal - buy + sell。
+holding = assets + buy - sell。
+
+硬约束：timeUse<=168；cashNext>=0；sell<=assets；buy 和 sell 不同时为正。
+违反即停止该路径，不生成该周收益，不假定借款，不用 clip 隐藏现金缺口。
+这些方案仍可查看冲突，但没有完整周期目标值；不能参与可行方案排名。
+
+weeklySigma = annualVol/sqrt(52)*riskMultiplier。
+assetReturn = max(-1, annualReturn/52 + weeklySigma*z + marketShock*shockFactor)。
+profit = holding*assetReturn。
+assetsNext = holding + profit。
+debtNext = debt - principal。
+netWorthNext - netWorth = income - spending - interest + profit。
+
+买卖和偿还本金改变资产负债结构，不直接创造或毁灭同额净财富。
+投资风险由实际持仓与波动决定，不再有与持仓脱钩的“风险暴露”滑杆。
+目前仅含一个风险资产和现金，现金回报假定为零，无税费、交易成本或杠杆。
+
+风险容忍指标：
+downside = holding*weeklySigma*1.65，元。它是情景压力尺度，不是现实保证或严格经验 VaR。
+lossCapacity = max(0,cashNext-bufferWeeks*essential) + riskTolerance*max(0,netWorth)。
+riskPressure = 100*downside/(lossCapacity+essential)。
+downside>lossCapacity 是偏好警告，不是禁止承担风险的资金硬约束。
+
+七、每周状态转移
+
+overload = max(0,work+learn+.5*care-50)。
+recovery = fatigueRecovery*(.5+.5*min(1,sleep/56))*(.5+.5*sleepQuality/100)。
+knowledgeGain = learningGain*sqrt(effectiveLearn)*(1-knowledge/100)。
+fatigueNext = clip(fatigue*(1-recovery)+.50*overload+.60*sleepDebt+healthWear-.12*min(exercise,5))。
+healthNext = clip(health+.08*min(exercise,5)*(1-health/100)-.015*max(0,fatigue-60)-healthShock*shockFactor)。
+sleepQualityNext = clip(sleepQuality+.04*(min(sleep,63)-56)-.015*strain)。
+knowledgeNext = clip(.999*knowledge+knowledgeGain)。
+calibrationNext = clip(calibration+.015*effectiveLearn*(metacognition/100)*(1-calibration/100))。
+metacognitionNext = clip(metacognition+.01*effectiveLearn*(1-metacognition/100))。
+biasNext = clip(bias+.01*strain-.02*effectiveLearn*metacognition/100)。
+regulationNext = clip(regulation+.012*leisure*(1-regulation/100)-.008*strain)。
+ruminationNext = clip(.97*rumination+.06*strain-.02*leisure)。
+stressNext = clip(.75*stress+.35*strain)。
+motivationNext = clip(motivation+.015*(valueFit-50)-.015*strain)。
+supportNext = clip(support+.10*sqrt(relation)*(1-support/100)-.015*conflict)。
+trustNext = clip(trust+.08*sqrt(relation)*(1-trust/100)-.02*conflict-relationshipDamage)。
+networkNext = clip(network+.035*sqrt(relation+work)*(1-network/100))。
+conflictNext = clip(.97*conflict+.08*strain-.04*relation)。
+clarityNext = clip(clarity+.02*effectiveLearn*(1-clarity/100))。
+agencyNext = clip(agency+.015*(valueFit-50)-.03*strain)。
+comparisonNext = clip(.98*comparison+.02*max(0,discretionary-targetSpend)/max(1,targetSpend)*100-.025*relation)。
+targetSpend 保持不变，未假定自动欲望升级。
+现金、风险资产、债务转移见第六节。
+
+分数转移系数均以一周为步长；涉及小时、根号小时的系数应带相应换算单位。
+这些是明确的结构假设，不是“系数小就科学”。尚需检查长期稳态、替代形式和更多人群数据。
+恢复使用期初状态，因此新产生的疲劳不会在同一期被完全消除，保留恢复滞后。
+Net 不直接推动身体或现金；若将来加入决策策略，应通过 A_t=policy(X_t,偏好,信息) 改变行动。
+
+八、正向效用与体验成本
+
+每一期行动后，计算该周的结果评价。初始状态仅作为起点，不额外计一周效用。
+自主时间 = 168-timeUse + leisure + exercise + relation。
+qualitySatisfaction = 100*min(1,log(1+discretionary)/log(1+targetSpend))；targetSpend=0 时为100。
+对数金额先按 1 元为基准形成无量纲比值。
+incomeSupportedSpend = max(0,income-essential-learningSpend-interest-principal)。
+aspirationGap = 100*max(0,targetSpend-incomeSupportedSpend)/targetSpend；目标为0时取0。
+该缺口只衡量经常收入支持程度；它不等于“动用储蓄必然不可持续”。有限周期资金可行性另算。
+valueMismatch = 100-valueFit。
+
+Safety = FinNext。
+Autonomy = clip(.6*max(0,agency-agencyLoss)+.4*sat(自主时间,28))。
+Quality = clip(.65*qualitySatisfaction+.35*sat(leisure,12))。
+Relation = SocNext。
+Growth = sat(knowledgeGain,2)。
+Meaning = clip(.5*clarity+.5*valueFit)。
+U = sum(weight_i*utility_i)/sum(weight_i)。
+
+EmotionCost = emotionRate*strain：即时情绪不适。
+HealthCost = healthRate*max(0,fatigueNext-60)：高疲劳当期不适。
+DesireCost = desireRate*(.6*aspirationGap+.4*valueMismatch)：品质与价值失配体验。
+RiskCost = riskRate*riskPressure：风险不适，不是已实现的金融亏损。
+Net = U - EmotionCost - HealthCost - DesireCost - RiskCost。
+J = sum(t=1..H, beta^(t-1)*Net_t)。
+
+防重复核算：
+- 额外消费只记现金支出，不再将同一笔金额从 Net 扣除。
+- 投资亏损只进资产账本，RiskCost 仅表示承担敞口的主观不适。
+- 主体感损失只进入 Autonomy，不再设第二个同义扣项。
+- 关系损害、健康损耗进下一期状态；直接不适属于另一个体验对象。
+- 支持仅进入调节容量一次，不能既进容量又用同一支持再抵消同一负荷。
+即便核算不重复，体验维度仍可能相关；权重不可冒充独立估计的因果损失。
+改变偏好只改变评价；改变机制参数或行动才改变状态轨迹。
+
+九、不确定性、逐周方案、敏感性和校准
+
+默认轨迹用 z=0 表示指定平均收益路径。非线性下，它不等于随机模拟的期望结果。
+随机情景使用有种子的独立标准正态周收益，80 条路径；同种子用于基准和实验。
+资产收益下限 -100% 会改变极端尾部；这不是市场风险模型的实证替代。
+healthShock、incomeShock 为用户指定情景，不从收益随机数推断；三类冲击可独立设定。
+shockFactor = shockRetention^(t-1)。
+
+schedule 是以 1–52 为键的对象，只在该周覆盖 plan 指定字段；未指定周仍用基础计划。
+每周先核对合并后的输入，再核算资源；未来现金不足会终止该路径。
+随机输出同时报告失败率与“完整可行路径条件下”的均值/分位数。
+不得把仅可行路径的均值称作所有路径的无条件期望。
+两组起点、参数或偏好不同，不给出同条件方案胜率结论。
+本版没有全局策略优化；比较指定候选方案与自动寻找最优行动不同。
+
+敏感性：单次扰动疲劳恢复、学习增益、收益、波动、情绪与欲望成本系数。
+通常上下20%，近零时取参数范围2%；对照 J 的变化，不把该范围称为置信区间。
+下一阶段应做联合参数扰动、相关冲击、替代函数形式和跨情景稳健性。
+
+实际记录校准：
+- 导出 observations-v1 模板；每条填写期初实际状态、当周实际安排、下周期初疲劳与知识观测。
+- 至少6条，按周数严格递增；不允许空值被当作零。
+- 前约70%（至少4条）训练，末段留出检验；不打乱时间。
+- 有限网格试拟合 fatigueRecovery 与 learningGain，仅此两个参数。
+- 训练目标为两个0–100观测值的均方误差；各权重相等是显式假设。
+- 报告留出RMSE相对原参数是否改善；不改善时界面不提供采用按钮。
+- 当前没有真实数据，故只完成了校准流程和合成数据单测，未完成个体或人群校准。
+
+十、工程使用与版本边界
+
+直接打开 v1.0/index.html（独立发布包中为 index.html）；运行时无外部依赖、网络请求或数据上传。
+修改 src 后执行 node scripts/build-offline.mjs 生成 app.offline.js。
+执行 node --test test/*.test.mjs。
+源码拆分：schema.js 定义与边界；model.js 计算、模拟、敏感性和试拟合；marginal.js 时间边际分析；app.js 界面与导入导出。
+生成 model-definition.json 可供后续 Codex 读取字段表。
+实验文件包含当前方案、固定基准、两组逐周安排、参数、周期与结果。导入不执行文件中的代码。
+1.0 自动保存个人输入、参数、决策进度与复盘草稿到当前浏览器 localStorage；跨设备使用完整数据 JSON。
+固定示例与个人输入隔离；当前安排和底层参数自动联动。详细格式见第十六节。
+
+十一、还值得优先改进的事
+
+1. 用一个真实但低风险的周安排案例连续复盘，先验证“减少加班是否改善疲劳”的方向，不看总分输赢。
+2. 为各分数提供稳定的自评问题和锚点；知识用同一任务测量，避免换题造成假成长。
+3. 加入固定薪资、必要支出刚性、照护责任和真实资产类别，避免有效工时计酬假设泛化。
+4. 为具体情绪类型与六条通道建立数据，不把情绪解释都压成 strain。
+5. 比较不同函数形式和阈值；设“结论随假设改变”而非“模型建议”标签。
+6. 等资源、测量、动态有证据后，再考虑受约束优化策略，先比较有限备选计划，不许把总分最优等同于人生最优。
+
+结论：1.0 的近期用途是让取舍可见、让假设可检验、让记录能积累。
+要判断它值不值得继续做，应看它能否帮助你提出一个更清楚、下周可验证的问题。
+
+十二、时间配置的边际效应模块 / 2026-10-29 新增
+
+目的：把“多投入一点是否值得”拆为可以核对的结果差值，不增加一套未经验证的状态方程。
+本次范围是七项时间投入的再分配，不含支出、持仓或参数本身的边际分析。
+与参数敏感性不同：改变行动，保持初始状态、机制系数和评价偏好不变。
+当前页面已应用的安排作为对照，不使用页面顶部另外固定的基准。
+
+入口：src/marginal.js 中 marginalEffects(scenario, weeks, schedule, config)。
+config：
+- target：增加的时间项，sleep/work/learn/exercise/relation/leisure/care。
+- source：减少的时间项，或 unallocated（每周 168 小时减去已分配时间）。
+- step：每个被调整周转入的小时数 δ，范围 0.01–168 小时，避免无限小输入导致数值不稳定。
+- frequency：weekly 表示整个周期每周都调整；once 表示只调整指定周。
+- week：once 的调整周，必须在当前周期内。weekly 时该字段不影响计算。
+target 与 source 不可相同。步长可以取小数，但过小变化可能被浮点精度或展示舍入淹没。
+week 与周期均以整周计。所有情景用 z=0，不运行随机抽样，也不声称是随机期望。
+
+扰动规则：先把基础 plan 与原有 schedule[t] 合并，再对该周实际安排作调整。
+从另一项调时：A'_t = A_t + δ e_target - δ e_source，总时间保持不变。
+从未分配时间调时：target 增加 δ，同时占用同等未分配时间。
+未被选中的周保持原安排。单周改变可能通过疲劳、知识、收入等影响更晚各周。
+每个方案均从同一起点重新完整模拟，不能从其他方案期末状态接着算。
+模型把未分配时间计入自主时间，因此从中调出也不是“零机会成本”。
+
+结果与单位：
+Y 为给定周期的一个结果，基准 Y(0)，调整后 Y(δ)。
+ΔY = Y(δ) - Y(0)。
+n = 被调整的周数，weekly 时 n=weeks，once 时 n=1。
+H = n*δ，是整个周期实际计划转入的总小时数。
+perHour = ΔY/H，是每转入 1 小时对应的平均结果变化。
+perStep = ΔY/δ，是对“每个被调整周增加的小时数”这一政策参数的差商。
+两者不同：每周增 1 小时、持续 12 周时，perStep=12*perHour。
+界面主要展示 perHour，避免把 12 小时的作用归到 1 小时。
+这些都是有限差分，不宣称无穷小导数。资源约束存在时，是指定交换方向的作用，不是无约束的单变量偏导。
+
+现金、净财富：期末存量差值，单位元；perHour 单位元/转入小时。
+疲劳、知识、六系统：期末指标差值，单位分；perHour 单位分/转入小时。
+累计收入：各周工作收入之和，不含买卖资产，单位元。
+累计有效学习：各周有效学习小时之和；不是简单把转入小时当作有效小时。
+累计净效用 J：各周 Net 的贴现和，单位效用分，不与人民币相加。
+firstDelta：首次调整周末的差值。对于 once，第 week 周之前的相同轨迹相减为零。
+现金等存量不逐周累加；收入、有效学习与 J 则是截至对应时点的累计值。
+
+非线性检查：同一方向分别计算 0.5δ、δ、2δ、4δ。
+每一档都独立模拟，而不是将 δ 档结果直接乘倍数。
+相邻段变化 = [Y(δ₂)-Y(δ₁)]/[n*(δ₂-δ₁)]。
+第一段相对零调整，随后相对上一档；显示知识等指标的递减、加速或拐点。
+这不是全局搜索，也不保证在未采样区间不存在其他拐点。
+若某档不可行，不越过该档计算相邻段差商。
+
+效用贡献核算：
+每项效用的贡献 = Σ beta^(t-1) * weight_i/Σweight * (U'_it-U_it)。
+每项成本的贡献 = -Σ beta^(t-1) * (Cost'_kt-Cost_kt)。
+六项效用贡献与四项成本贡献相加等于 ΔJ；成本减少对应正贡献。
+这个分解是评价公式的核算，不证明各维度相互独立，也不把相关效用解释为独立因果效应。
+修改偏好可改变贡献与 J，但不应改变现金、疲劳或知识的轨迹。
+
+可行性：
+- 每个调整周都核对来源是否有足够时间，不自动缩小用户请求的步长。
+- 时间不能超过 168 小时，金额不能突破现有模型的现金与持仓硬约束。
+- 如果后期现金不足，整段周期的 metrics/delta/perHour/contributions 为空，不以截短结果冒充完整结果。
+- 基准不可行时不计算边际比较。失败周与原因单独返回。
+- 工作下限、照护义务和个体睡眠需求尚未编码为硬约束。数学上可行不等于现实可执行。
+
+实例：沿用此前“工作、学习与休息”演示的 168 小时基准：
+工作40、学习6、睡眠56、运动3、关系7、休闲14、必要事务42小时；
+现金30000元、资产和债务为0；每周必要800、品质300、学习100元；不买卖或还款；其余默认。
+每周从工作转给学习1小时，持续12周，实际共转入12小时：
+期末现金比原安排少468.49元；知识多0.6266分；疲劳差值0。
+平均每转入1小时：现金变化-39.04元，期末知识变化+0.05222分。
+相邻段（每周调整0→0.5、0.5→1、1→2、2→4小时）知识变化依次约为
+0.05346、0.05098、0.04776、0.04262分/转入小时，展示当前公式中的边际递减。
+疲劳差值0来自这组参数下工作与学习在过载公式中同权、且未引发不同情绪超额；
+它不是现实中工作与学习耗能相同的证据。固定工资也不能按这里的有效工时收入减少额直接推断。
+页面原始默认输入与上述演示输入不同，因此其边际数字也不同。
+
+保存与交接：
+1.0 用完整工作区格式导出；支持导入 v0.3 实验格式，缺少 marginalConfig 时采用默认设置。
+导出完整实验时一并附上 marginalResults，含假设口径、步长、分母、差值、各档结果及贡献。
+导入后从源输入重新计算，不信任文件中的已导出结果，也不执行导入文件中的代码。
+machine-readable model-definition.json 包含该模块入口、默认设置及结果单位。
+早期阶段的归档与版本演进见项目根目录 LOCAL_VERSIONS.txt。
+
+十三、1.0 的页面与数据主线
+
+index.html 是唯一运行入口，以 hash 切换八个独立视图，一次显示一个功能页。
+#guide 做一个选择：普通人的五步决策流程。
+#demo 体验示例：固定起点，三种目标、每种两条路径、1/2/4小时，共18种情景。
+#model 底层模型：机制参数、价值权重、方程、变量字典、口径和限制。
+#decision 全部输入与对照：时间与资金、逐周安排、显式固定基准、轨迹。
+#systems 六个状态系统：期初状态输入。
+#marginal 边际试算：自选时间交换方向、幅度、每周或单周。
+#evidence 检验模型假设：随机情景、局部敏感性、观测校准。
+#files 保存与导出：当前完整工作区的本机保存和跨设备文件。
+
+数据关系：
+个人输入 current + 已应用逐周安排 schedule + 周期 weeks
+  -> buildDecisionGuide(current, config, {weeks, schedule, limits})
+  -> 每个候选调用 marginalEffects
+  -> 同一 simulate / step 核心，输出候选结果
+  -> 用户选择 choiceId，生成第1周试行计划与复盘输入。
+
+主线、状态页、参数页、全部输入共用 current，不再复制起点。
+个人输入与专业输入中相同字段双向镜像，任何有效修改都会重算候选和已选结果。
+参数改变后，固定基准 baseline 不自动改变，固定示例也不改变。
+“选择方案”不把该方案自动写回 current.plan，避免反复选择导致时间累计转移。
+参数改动使原方案失效时取消当前选择，并回到选择或比较步骤；对应文字草稿保留。
+调整参数后仍有效的方案保持选中，文字和当前步骤保留。
+无效或空输入保留原始草稿，但清空受影响的结果并禁用试行保存，不能展示旧结果冒充新计算。
+专业随机分析、敏感性和观测拟合是显式计算操作，不随着每次按键反复运行。
+逐周 JSON 草稿需要“应用逐周安排”，未应用草稿不改变实际 schedule。
+
+十四、五步引导的规则
+
+1. 选择目标。
+   多学一点：以期末知识增加作为目标改善。
+   少累一点：以期末疲劳减少作为目标改善。
+   增加收入：以周期累计工作收入增加作为目标改善。
+   每周调整幅度为0至48小时的整数，滑块步长为1小时。
+   0小时表示保留原安排，不创建调整候选、不计算单位小时差值，也不生成新试行。
+   48小时是交互选择上限，不是健康建议或可执行额度；每条候选仍核对来源、底线与全周期资源。
+   增收必须先确认“按当前有效时薪计酬”；未知或固定工资无额外报酬不会生成增收估算。
+   这一确认只控制增收入口，整个数学核心仍以有效工时乘时薪核算全部工作收入。
+
+2. 输入与底线。
+   优先展示工作、学习、睡眠、自主休闲、起始现金、起始疲劳、时薪、必要支出。
+   其余状态、时间、资金及参数在对应专业页编辑，全部联动。
+   比较周期可选4、12、26、52周；试行仍先做一周。
+   睡眠默认不可减少；也可保护工作或学习时间。
+   保护是“不能从该项挪走时间”，不是人体或岗位最低需求的经验估计。
+   第一周若有 schedule[1] 覆盖，候选周安排以覆盖后的真实第一周为准。
+   个人输入区显示的是基础周安排；逐周覆盖的存在会单列提示。
+
+3. 比较代价。
+   所有候选与同一份个人原安排比较，不与另存的固定基准比较。
+   先检查来源时间、资源硬约束、保护项及整个周期是否可行，再检查目标是否改善。
+   资源可行但目标未改善的候选不会作为可试行安排，原因可展开查看。
+   学习重点展示知识、现金、疲劳；恢复优先疲劳；增收展示累计收入和其他代价。
+   收入是流量累计，现金是期末存量；单位及观察周期分别标注。
+   不自动按总效用排名，不把某个目标改善等同于整体最优。
+
+4. 选择方案。
+   用户明确选择一个可用候选才能进入复盘；选择不会自动跳步。
+   修改目标、幅度或底线，需重新经过相应步骤确认。
+   已完成步骤可以返回修改，外层页面切换不清空输入。
+
+5. 试行复盘。
+   展示第一周调整后的工作、学习、睡眠、自主休闲及第一周模拟差值。
+   对每个“目标+调整幅度+方案”单独保存文字草稿，支持0至48小时的全部整数档位。
+   修改模型参数或个人状态不改变草稿的归属；自动重算的数字可能改变。
+   “暂不改变”取消当前选择，不再因下次参数变更自动选回；原文字仍可在重新选择时找回。
+   “保存这次试行计划”保存当前输入、参数、安排、周期、选择和记录的快照。
+   复盘自由文字不自动拟合参数；采用试拟合参数需另走真实观测校准流程。
+
+候选清单、ID、目标指标顺序和保护映射以 src/guide.js 为准。
+比较返回值包含 available、excluded、rows、weeks、schedule、totalHours。
+每个 row 的 point 来自原边际引擎；plan 为实际第一周调整后的安排。
+
+十五、三个固定示例
+
+示例共用 createLearningDemoScenario()，不读取或覆盖个人输入。
+初始现金30000元、资产债务0；工作40、学习6、睡眠56、运动3、关系7、
+自主休闲14、必要事务42小时；每周必要800、品质300、学习100元；
+时薪80元/有效小时；其余状态、参数和权重采用 schema 默认值。
+学习示例：工作 -> 学习；睡眠 -> 学习。
+恢复示例：工作 -> 睡眠；工作 -> 自主休闲。
+收入示例：自主休闲 -> 工作；学习 -> 工作。
+每个目标持续12周，每周1、2、4小时，总转入量12、24、48小时。
+
+所有结果重跑完整状态路径，不能用1小时结果乘以4。
+相邻段0->1、1->2、2->4的分母为12、12、24小时。
+展开明细含第1周差值、期末值、每转入小时变化、相邻增量。
+三种目标分别记忆时数选择并自动存储，刷新后恢复。
+示例不会采用个人“不能减少睡眠”等条件；它是固定体验，不是个人筛选结果。
+
+十六、完整工作区、试行快照与兼容
+
+1.0 工作区键与文件 format：financial-human-workspace-v1。
+experiment 包含：
+- format financial-human-experiment-v1.0，version 1.0.0。
+- current、baseline：版本、state、plan、parameters、weights。
+- schedule、baselineSchedule：逐周覆盖对象。
+- weeks、question、marginalConfig。
+decision 包含：
+- config：goal、amount、protectSleep、protectWork、protectLearn、incomeMode。
+- choiceId、step、reached。
+- notes：[索引,文字] 数组；索引是 JSON.stringify([JSON.stringify([goal,amount]),choiceId])。
+- selections：[JSON.stringify([goal,amount]),choiceId] 数组。
+- limits：minCash、minSleep、maxIncomeLoss；null代表不设置，0是有效底线。
+- limitDrafts：[底线字段,原始字符串] 数组，保存尚未通过校验的底线输入。
+- view：各目标对照方案pairs、曲线metric、trendOpen/detailOpen/limitsOpen。
+其他：
+- demo：goal 与各目标的 amounts 选择。
+- fieldDrafts：[group.key,原始字符串]，用于无效数字草稿。
+- scheduleText：待编辑的逐周 JSON 原文。
+- scheduleError：最近一次应用失败的错误；保留到修正应用。
+- marginalDraft：边际控件原始字符串，独立于已验证的 marginalConfig。
+导出额外附 results、marginalResults、exportedAt；这些是派生结果，导入后不直接采用。
+
+自动保存发生在有效或无效输入、决策配置、步骤、选择、复盘和示例切换时。
+主线时数滑动时即更新、保存；草稿容量覆盖3目标x49档的选择及13类路径x49档的文字记录。
+启动时读取同一浏览器的工作区；坏存档不被默认值自动覆盖。
+用户明确保存或导入有效工作区后可以替换坏存档。
+存储拒绝时计算仍能使用，状态提示导出留存。
+文件导入先完整校验，再替换；非法字段不部分污染当前工作区，不执行任何导入代码。
+无效数字草稿属于可恢复编辑状态，不会作为已验证数值进入计算。
+导入文件限制5 MB，文字和数组有长度限制。
+更换浏览器、移动文件或清理浏览器存储可能失去本机记录，跨设备使用导出文件。
+
+最近试行快照：
+键与 format financial-human-weekly-trial-v3；
+包含 scenario、schedule、weeks、config、choiceId、note、limits、savedAt。
+每次保存替换最近快照，读取会恢复该快照的个人输入与模型参数。
+工作区导出包含当前选择及全部记录草稿，不另附之前独立保存的历史快照。
+若需转交最近快照，先读取该试行计划，再导出全部数据。
+
+兼容：
+- financial-human-experiment-v0.3 文件升级为1.0，原文件不改动。
+- 旧本机实验 financial-human-v0.3 仅在明确读取、且无新存档时回退读取。
+- weekly-trial-v2、weekly-trial-v1 可明确读取，旧格式默认12周、无逐周覆盖。
+- 旧工作区或试行记录缺少limits/view时，迁移为不设置个人底线及默认对照视图。
+- 新旧存储键隔离，升级不覆盖0.3原存档。
+- 损坏的新快照不静默回退到旧快照。
+- 0.2 输入语义不同，不直接迁移。
+
+十七、交接与验证
+
+交付对象是本地离线工具1.0，不是经实证校准的个人预测模型。
+原有 model.js / marginal.js 数学函数未改；本次升级重点为统一数据源、交互、存储与完整回归。
+src/schema.js 的版本升级与兼容入口不改变默认数值。
+自动测试运行 node --test test/*.test.mjs。
+browser-check.html 由 scripts/build-browser-check.mjs 生成，内嵌当前运行文件与SHA256。
+浏览器检查在用户手动打开的Edge中执行，用隔离前缀存储，不改个人存档。
+详见 VALIDATION.txt、UI_REVIEW.txt 和 qa/browser-report.json。
+这是规定用例内的交互、计算与布局验证；不替代真实测量、全浏览器覆盖或辅助技术审计。
+发布包含源码、测试、模型说明、变量字典、兼容样例、检查页及校验证据，可交给另一台设备上的Codex继续开发。
+
+十八、直接对照、投入回报图与个人底线
+
+入口 src/comparison.js。不修改 model.js / marginal.js 的数学方程。
+guidePath 从相同期初状态、参数、原安排及逐周覆盖重跑整个周期；
+每周先合并原安排和覆盖，再做 source -> target 的时间交换。
+任何周来源不足、目标超界或资源不可行时，不展示截短路径为完整结果。
+主线中不同方案共用同一套输入；改变底线只筛选方案，不改变各方案的物理结果。
+
+投入与产出
+累计时间交换 = 每周转入小时数 x 周数，是计划投入，不是耗能或主观努力分。
+累计学习投入 = 各周实际计划学习小时之和。
+累计有效学习 = 各周 mechanisms.effectiveLearn 之和，是效率折算后的模型估计小时。
+知识积累是另一个状态分数，由学习增益系数、有效学习和原有知识共同决定。
+因此修改learningGain会改变知识和后续现金，不会直接改变第一周有效学习小时。
+期末现金和疲劳展示周期末存量；累计工作收入是各周劳动收入之和，不是现金余额。
+
+图表规则
+主图并排显示A/B的时间交换、相对原安排差值和调整后值；同一指标共用量尺。
+不同指标使用各自单位和量尺，横条长度不能跨指标比较，也不合成总分。
+现金、有效学习和收入增加为收益方向；疲劳增加为负担方向，减轻为收益方向。
+图下直接差值为B减A，而非再次减原安排；不自动排名或替用户选择。
+逐周曲线含第0周期初及第1至H周：现金、疲劳、累计有效学习可分别查看。
+原安排为灰色虚线、A为蓝色实线、B为红色点线；颜色不代表整条方案的好坏。
+现金/疲劳曲线标记路径极值，明细给出最低现金、最高疲劳及最早出现周。
+完整数值表包含累计计划投入、有效学习、工作投入、收入与期末知识。
+所有曲线均为确定性z=0路径，不是置信区间、概率或实证因果估计。
+
+可选个人底线与余量
+minCash：元，0至1e9；余量 = min(期初现金,各周末现金) - minCash。
+现金最紧时点包括期初；周内支付先后和日内流动性未建模。
+minSleep：小时/周，0至168；余量 = min(实际各周睡眠) - minSleep。
+睡眠使用应用逐周覆盖、再做时间交换后的值；这是用户填写的底线，不是医学推荐值。
+maxIncomeLoss：元/整个周期，0至1e9；
+余量 = 方案累计工作收入 - 原安排累计工作收入 + maxIncomeLoss。
+该底线限制少赚的工作收入，不是投资亏损，也不是支出导致的现金减少。
+null表示未设，显式0表示不允许越过0阈值；容许的浮点比较误差为1e-8。
+未设底线不显示虚构的“安全余量”；不满足时从可选方案剔除，并在排除项说明差额及周次。
+现有保护睡眠/工作/学习复选框仍独立生效；满足数值底线不能越过保护项。
+现有资源可行性与目标改善筛选仍独立生效。所有方案均被筛掉时，不自动放松底线。
+
+状态与兼容
+每个目标单独记录A/B选择；碰到同一方案时交换位置，避免重复对照。
+候选失效后显示仍可用方案，但保留原对照偏好以便条件恢复。
+底线无效输入保留原始草稿，同时隐藏旧图表、阻止保存，不用旧数字继续出结果。
+底线、对照选择、曲线指标及详情展开状态随工作区导出、导入、跨页和刷新恢复。
+保存试行包含个人底线；读取旧记录时不擅自添加底线。
+专业边际模块和固定示例不套用个人底线，它们仍保留各自的对照口径。
+
+十九、百分比、全程疲劳与睡眠复查
+
+relativePercent(adjusted, original) = (adjusted-original)/original*100。
+计算使用原始数值，不从页面四舍五入后的0.8/11.0反推百分比。
+原值小于等于1e-9、非有限或结果溢出时返回null；原值为0时显示“原值为0”。
+非零且绝对值小于0.1%的变化显示增加/减少<0.1%，不显示成0.0%；浮点噪声除外。
+基准都是未调整的原安排；不是方案A，也不是100分满分或个人底线。
+来源/目标的时间百分比分别以原安排整个周期的对应时间总量为分母。
+原未分配时间 = 周数*168 - 各活动累计时数之和；逐周覆盖也计入。
+疲劳变化为负是减负，故使用减负颜色，不能仅凭百分比正负判断利弊。
+疲劳、知识等指数百分比不是已验证的主观体验比例或健康改善率。
+
+平均与累计过程量
+F_t为第t周末疲劳，H为比较周数，步长Delta t=1周。
+fatigueBurden = Sum(t=1..H) F_t * Delta t，单位为分·周。
+averageFatigue = fatigueBurden / (H*Delta t)，单位为分。
+期初F_0不作为额外一周加入。此为周末离散采样汇总，不是日内积分。
+同一周期内平均与累计负担的百分比相同，不构成两项独立收益。
+平均疲劳仅新增为展示指标，不改变原目标改善筛选或状态转移方程。
+
+52周睡眠检查
+使用schema默认输入，睡眠由56增加到68小时/周，从未分配或自主休闲中各转12小时。
+这是默认输入复现，疲劳与用户截图吻合；未读取个人存档，不能说全部输入或现金结果与截图相同。
+期末疲劳：11.00952633394105 -> 10.217452300906807；变化-0.7920740330342433分，-7.194442422035668%。
+全程平均：12.03556588488781 -> 11.643914136606949；变化-0.3916517482808608分，-3.254119931100453%。
+累计负担：625.849426014166 -> 605.4835351035613分·周，少20.365890910604776分·周。
+第1/4/12/26/52周的疲劳差值依次约0/-0.0424/-0.1629/-0.3806/-0.7921分。
+本例后期差值大于前期，不存在被期末值掩盖的大幅早期减负；累计差别不能称为减少20分疲劳。
+
+主因是三处假设：
+sleepDebt=max(0,56-sleep)，达到56小时后不存在睡眠不足惩罚。
+recovery=fatigueRecovery*(0.5+0.5*min(1,sleep/56))*(0.5+0.5*sleepQuality/100)，直接时长因子也在56小时封顶。
+sleepQuality增量中的时长项=0.04*(min(sleep,63)-56)，在63小时封顶，质量的更新通过后续周恢复率产生影响。
+从56增加到63小时与增加到68小时的疲劳路径相同；后5小时/周共260小时没有额外睡眠收益。
+从其他活动转移这260小时仍可能有机会成本；不能把无额外疲劳收益说成无成本。
+疲劳是保留和恢复共同决定的状态，不是“多睡一小时，永久加一点收益”的累积账户。
+这些阈值、同一睡眠需求和默认恢复系数均未经个体校准，所以结果算术自洽不等于对现实合理性的验证。
+
+下一轮模型优先项（本次未修改）
+将固定睡眠需求、欠睡累积/偿还、恢复速度和睡眠质量测量拆开；用连续个人记录约束参数。
+避免同时给定固定56/63阈值却把结果解释为每个人的规律；测试平滑饱和和其他候选函数。
+比较期末、全过程平均和高疲劳持续时间，不通过单纯增大系数来迎合预期结果。
+保留本版作为对照，修订后比较同一输入、相同单位和同一观察期。

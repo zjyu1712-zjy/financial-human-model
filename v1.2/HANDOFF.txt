@@ -1,0 +1,39 @@
+金融学人1.2 开发交接
+
+范围：整站去术语化 + 睡眠/疲劳实际记录引导。旧v1.1保持不变。
+默认入口是“做一个选择”，不是技术模型仪表盘。
+本版不改1.1的模型方程，仅在用户确认后将记录参考写入已有输入。
+
+主要源码
+src/model.js / src/sleep.js：1.1计算器，未改变。
+src/copy.js：面向普通人的字段与分组标签，底层key和单位不变。
+src/navigation.js、src/app.js：整站文案、个人输入与结果联动。
+src/sleep-diary.js：记录校验、完整周、参考筛选、条件恢复拟合、采用。
+src/sleep-diary-ui.js：三步引导、日期/周草稿、确认与本机保存。
+src/workspace.js：1.2完整工作区及旧数据兼容。
+SLEEP_DIARY.txt：算法细节；LANGUAGE_RESEARCH.txt：表述依据。
+
+状态约定
+workspace键：financial-human-workspace-v1.2；试行键：financial-human-weekly-trial-v5。
+读取旧v4/v3/v2/v1试行是显式操作，不写回旧键。
+旧1.1完整工作区导入后sleepDiary为空；原输入、计划、草稿保留。
+记录保存不动current；采用后renderControls/renderResults/persistWorkspace联动。
+保留未应用的schedule文本、固定示例、固定对照和按目标保存的试行草稿。
+实际周采用只改基础时间安排、fatigue、sleepQuality、sleepDebt；单独逐周安排仍优先。
+修改记录导致指纹改变，旧周确认失效；不能拿新记录配旧确认静默拟合。
+
+验证与发布
+先build-offline，再运行node --test --test-reporter=tap test/*.test.mjs。
+运行scripts/check-structure.py，再build-browser-check；真实浏览器报告需120/120。
+核对报告version、runnerVersion、errors、每个宽度30项、三个运行文件和两份检查器源码SHA256后归档qa/browser-report.json。
+python3 scripts/package-release.py验证上述条件，缺报告时不生成正式发布包。
+目标包名financial-human-model-1.2-guided.zip，不能覆盖任何旧版本发布包。
+当前本地1.2交付：176项Node、218个静态ID、Edge120项检查通过。
+用户提供的展开局部截图可见部分无明显遮挡；完整视觉范围见UI_REVIEW.txt。
+发布包附完整源码、说明、首轮及通过报告、展开截图；旧发布包不改，未推送GitHub。
+截图43天为检查器合成样本，不代表用户真实记录；正式入口为index.html。
+
+下一位开发者必须区分
+精神较好时的睡眠统计不等于生理需求测定；缺觉账本零起点只是模拟假设。
+恢复拟合是在其他设置成立时改善后段误差，不证明因果或联合识别全部参数。
+测试fixture和静态检查没有浏览器排版引擎，不能当作真实UI验收。

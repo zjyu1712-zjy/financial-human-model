@@ -1,0 +1,1553 @@
+{
+  "version": "1.2.0",
+  "status": "uncalibrated-research-prototype",
+  "units": {
+    "time": "hours/week",
+    "money": "CNY",
+    "state": "self-referenced 0-100 index",
+    "sleepDebt": "hours of cumulative unmet need, model ledger",
+    "sleepNeed": "hours/day"
+  },
+  "stateGroups": [
+    {
+      "id": "body",
+      "name": "身体与恢复",
+      "fields": [
+        {
+          "key": "health",
+          "label": "基础健康",
+          "unit": "分",
+          "min": 0,
+          "max": 100,
+          "value": 80,
+          "meaning": "主观功能状态，不是疾病诊断；100 为本人健康参照"
+        },
+        {
+          "key": "sleepQuality",
+          "label": "睡眠质量",
+          "unit": "分",
+          "min": 0,
+          "max": 100,
+          "value": 75,
+          "meaning": "最近一周自评睡眠恢复质量"
+        },
+        {
+          "key": "fatigue",
+          "label": "累积疲劳",
+          "unit": "分",
+          "min": 0,
+          "max": 100,
+          "value": 30,
+          "meaning": "跨周保留；越高表示越疲惫"
+        },
+        {
+          "key": "sleepDebt",
+          "label": "期初睡眠债",
+          "unit": "小时",
+          "min": 0,
+          "max": 10000,
+          "value": 0,
+          "meaning": "尚未补足的累计睡眠时长差额；0为默认假设，不是实测结论；与金融债务分开"
+        }
+      ]
+    },
+    {
+      "id": "cognition",
+      "name": "认知与判断",
+      "fields": [
+        {
+          "key": "knowledge",
+          "label": "任务相关知识",
+          "unit": "分",
+          "min": 0,
+          "max": 100,
+          "value": 60,
+          "meaning": "相对当前任务所需知识，不是智商"
+        },
+        {
+          "key": "calibration",
+          "label": "判断校准",
+          "unit": "分",
+          "min": 0,
+          "max": 100,
+          "value": 60,
+          "meaning": "预测与结果吻合程度；无记录时为自评"
+        },
+        {
+          "key": "metacognition",
+          "label": "复盘与自知",
+          "unit": "分",
+          "min": 0,
+          "max": 100,
+          "value": 65,
+          "meaning": "识别错误和修正假设的能力"
+        },
+        {
+          "key": "bias",
+          "label": "判断偏差",
+          "unit": "分",
+          "min": 0,
+          "max": 100,
+          "value": 30,
+          "meaning": "冲动、确认偏误等的汇总代理；越高越不利"
+        }
+      ]
+    },
+    {
+      "id": "emotion",
+      "name": "情绪与动机",
+      "fields": [
+        {
+          "key": "regulation",
+          "label": "调节能力",
+          "unit": "分",
+          "min": 0,
+          "max": 100,
+          "value": 65,
+          "meaning": "识别情绪、暂停反应和求助能力"
+        },
+        {
+          "key": "rumination",
+          "label": "反刍程度",
+          "unit": "分",
+          "min": 0,
+          "max": 100,
+          "value": 30,
+          "meaning": "重复思考造成的注意力占用"
+        },
+        {
+          "key": "stress",
+          "label": "累积压力",
+          "unit": "分",
+          "min": 0,
+          "max": 100,
+          "value": 30,
+          "meaning": "跨周保留的情绪负荷"
+        },
+        {
+          "key": "motivation",
+          "label": "内在动机",
+          "unit": "分",
+          "min": 0,
+          "max": 100,
+          "value": 65,
+          "meaning": "行动与个人意愿一致时的持续动力"
+        }
+      ]
+    },
+    {
+      "id": "social",
+      "name": "关系与支持",
+      "fields": [
+        {
+          "key": "support",
+          "label": "可用支持",
+          "unit": "分",
+          "min": 0,
+          "max": 100,
+          "value": 65,
+          "meaning": "需要时可实际获得的帮助"
+        },
+        {
+          "key": "trust",
+          "label": "关系信任",
+          "unit": "分",
+          "min": 0,
+          "max": 100,
+          "value": 65,
+          "meaning": "可靠、互惠和边界的综合评价"
+        },
+        {
+          "key": "network",
+          "label": "机会触达",
+          "unit": "分",
+          "min": 0,
+          "max": 100,
+          "value": 50,
+          "meaning": "相关领域的连接质量"
+        },
+        {
+          "key": "conflict",
+          "label": "关系冲突",
+          "unit": "分",
+          "min": 0,
+          "max": 100,
+          "value": 25,
+          "meaning": "未解决冲突与关系消耗"
+        }
+      ]
+    },
+    {
+      "id": "finance",
+      "name": "资金与负债",
+      "fields": [
+        {
+          "key": "cash",
+          "label": "现金余额",
+          "unit": "元",
+          "min": 0,
+          "max": 100000000,
+          "value": 30000,
+          "meaning": "不含风险资产；不得通过截断掩盖负余额"
+        },
+        {
+          "key": "assets",
+          "label": "风险资产市值",
+          "unit": "元",
+          "min": 0,
+          "max": 100000000,
+          "value": 20000,
+          "meaning": "单一汇总风险资产；买入是资产转换而非收益"
+        },
+        {
+          "key": "debt",
+          "label": "债务本金",
+          "unit": "元",
+          "min": 0,
+          "max": 100000000,
+          "value": 10000,
+          "meaning": "计息负债；本金偿还不是净财富损失"
+        }
+      ]
+    },
+    {
+      "id": "desire",
+      "name": "欲望与自主",
+      "fields": [
+        {
+          "key": "clarity",
+          "label": "价值清晰度",
+          "unit": "分",
+          "min": 0,
+          "max": 100,
+          "value": 65,
+          "meaning": "能否辨别自己真正想要什么"
+        },
+        {
+          "key": "agency",
+          "label": "选择自主感",
+          "unit": "分",
+          "min": 0,
+          "max": 100,
+          "value": 65,
+          "meaning": "相同时间安排也可能是自愿或被迫"
+        },
+        {
+          "key": "comparison",
+          "label": "比较与身份压力",
+          "unit": "分",
+          "min": 0,
+          "max": 100,
+          "value": 40,
+          "meaning": "外部比较的驱动力；也进入情绪负荷"
+        },
+        {
+          "key": "targetSpend",
+          "label": "期望品质支出",
+          "unit": "元/周",
+          "min": 0,
+          "max": 1000000,
+          "value": 500,
+          "meaning": "在必要支出之外，希望维持的品质消费水平"
+        }
+      ]
+    }
+  ],
+  "planGroups": [
+    {
+      "id": "time",
+      "name": "每周时间",
+      "fields": [
+        {
+          "key": "sleep",
+          "label": "睡眠",
+          "unit": "小时/周",
+          "min": 0,
+          "max": 168,
+          "value": 56,
+          "meaning": "睡眠实际时长"
+        },
+        {
+          "key": "work",
+          "label": "工作",
+          "unit": "小时/周",
+          "min": 0,
+          "max": 168,
+          "value": 40,
+          "meaning": "投入时长；收入受有效工作效率影响"
+        },
+        {
+          "key": "learn",
+          "label": "学习",
+          "unit": "小时/周",
+          "min": 0,
+          "max": 168,
+          "value": 6,
+          "meaning": "投入时长；产出受身体、动机和偏差影响"
+        },
+        {
+          "key": "exercise",
+          "label": "运动",
+          "unit": "小时/周",
+          "min": 0,
+          "max": 168,
+          "value": 3,
+          "meaning": "适度活动投入；收益饱和"
+        },
+        {
+          "key": "relation",
+          "label": "关系投入",
+          "unit": "小时/周",
+          "min": 0,
+          "max": 168,
+          "value": 6,
+          "meaning": "陪伴、沟通与合作"
+        },
+        {
+          "key": "leisure",
+          "label": "自主休闲",
+          "unit": "小时/周",
+          "min": 0,
+          "max": 168,
+          "value": 12,
+          "meaning": "自愿安排的休闲时间"
+        },
+        {
+          "key": "care",
+          "label": "照护与必要事务",
+          "unit": "小时/周",
+          "min": 0,
+          "max": 168,
+          "value": 21,
+          "meaning": "家务、通勤及照护，不直接算作自主时间"
+        }
+      ]
+    },
+    {
+      "id": "money",
+      "name": "每周资金安排",
+      "fields": [
+        {
+          "key": "wage",
+          "label": "标准时薪",
+          "unit": "元/有效小时",
+          "min": 0,
+          "max": 100000,
+          "value": 80,
+          "meaning": "研究示例按有效小时计酬；固定薪资需另建收入规则"
+        },
+        {
+          "key": "essential",
+          "label": "必要支出",
+          "unit": "元/周",
+          "min": 1,
+          "max": 1000000,
+          "value": 800,
+          "meaning": "基础生活、住房等必要开支"
+        },
+        {
+          "key": "discretionary",
+          "label": "品质消费",
+          "unit": "元/周",
+          "min": 0,
+          "max": 1000000,
+          "value": 300,
+          "meaning": "不含学习支出和情绪性额外支出"
+        },
+        {
+          "key": "learningSpend",
+          "label": "学习支出",
+          "unit": "元/周",
+          "min": 0,
+          "max": 1000000,
+          "value": 100,
+          "meaning": "课程或训练支出，仅记账；不保证学习增益"
+        },
+        {
+          "key": "buy",
+          "label": "买入风险资产",
+          "unit": "元/周",
+          "min": 0,
+          "max": 10000000,
+          "value": 500,
+          "meaning": "以现金购买；与卖出不可同时为正"
+        },
+        {
+          "key": "sell",
+          "label": "卖出风险资产",
+          "unit": "元/周",
+          "min": 0,
+          "max": 10000000,
+          "value": 0,
+          "meaning": "仅可卖出当前持有的市值"
+        },
+        {
+          "key": "repay",
+          "label": "偿还本金",
+          "unit": "元/周",
+          "min": 0,
+          "max": 10000000,
+          "value": 100,
+          "meaning": "最多偿还剩余本金，末周自动减少"
+        },
+        {
+          "key": "valueFit",
+          "label": "行动价值匹配",
+          "unit": "分",
+          "min": 0,
+          "max": 100,
+          "value": 75,
+          "meaning": "该安排是否符合自己的价值，不由花钱多少替代"
+        }
+      ]
+    },
+    {
+      "id": "shocks",
+      "name": "第一周外部冲击",
+      "fields": [
+        {
+          "key": "marketShock",
+          "label": "市场收益冲击",
+          "unit": "比例",
+          "min": -0.8,
+          "max": 0.8,
+          "value": 0,
+          "meaning": "例如 -0.10 表示当周额外下跌 10%，随后衰减"
+        },
+        {
+          "key": "healthShock",
+          "label": "健康损耗",
+          "unit": "分",
+          "min": 0,
+          "max": 50,
+          "value": 0,
+          "meaning": "外部健康事件造成的状态减量"
+        },
+        {
+          "key": "incomeShock",
+          "label": "收入变动",
+          "unit": "比例",
+          "min": -1,
+          "max": 1,
+          "value": 0,
+          "meaning": "与市场、健康冲击分开定义"
+        }
+      ]
+    }
+  ],
+  "parameters": [
+    {
+      "key": "fatigueRecovery",
+      "label": "基础疲劳恢复率",
+      "unit": "比例/周",
+      "min": 0.05,
+      "max": 0.8,
+      "value": 0.3,
+      "meaning": "睡到个人需求且质量为100分时的每周恢复比例；有效恢复率另由时长和质量计算"
+    },
+    {
+      "key": "learningGain",
+      "label": "学习增益系数",
+      "unit": "分/根号有效小时",
+      "min": 0.1,
+      "max": 4,
+      "value": 1.2,
+      "meaning": "学习饱和增益；可试拟合"
+    },
+    {
+      "key": "annualReturn",
+      "label": "风险资产期望年收益",
+      "unit": "比例/年",
+      "min": -0.3,
+      "max": 0.4,
+      "value": 0.05,
+      "meaning": "纯情景假设，不代表市场预测"
+    },
+    {
+      "key": "annualVol",
+      "label": "风险资产年波动",
+      "unit": "比例/根号年",
+      "min": 0.01,
+      "max": 1,
+      "value": 0.2,
+      "meaning": "年度标准差；按根号 52 换算周波动"
+    },
+    {
+      "key": "debtAPR",
+      "label": "债务年利率",
+      "unit": "比例/年",
+      "min": 0,
+      "max": 0.5,
+      "value": 0.08,
+      "meaning": "周利息=期初本金×年利率/52"
+    },
+    {
+      "key": "bufferWeeks",
+      "label": "现金缓冲目标",
+      "unit": "周",
+      "min": 1,
+      "max": 52,
+      "value": 8,
+      "meaning": "必要支出的目标覆盖周数，偏好而非建议"
+    },
+    {
+      "key": "riskTolerance",
+      "label": "额外损失容忍比例",
+      "unit": "比例",
+      "min": 0,
+      "max": 0.5,
+      "value": 0.1,
+      "meaning": "对正净财富的主观容忍比例"
+    },
+    {
+      "key": "beta",
+      "label": "每周贴现因子",
+      "unit": "比例",
+      "min": 0.8,
+      "max": 1,
+      "value": 0.99,
+      "meaning": "时间偏好；不是生理恢复系数"
+    },
+    {
+      "key": "shockRetention",
+      "label": "冲击留存率",
+      "unit": "比例/周",
+      "min": 0,
+      "max": 1,
+      "value": 0.5,
+      "meaning": "仅衰减外部指定冲击"
+    },
+    {
+      "key": "emotionRate",
+      "label": "情绪不适权重",
+      "unit": "效用分/负荷分",
+      "min": 0,
+      "max": 1,
+      "value": 0.12,
+      "meaning": "只评价即时情绪不适，不再扣实际金钱损失"
+    },
+    {
+      "key": "healthRate",
+      "label": "疲劳不适权重",
+      "unit": "效用分/疲劳分",
+      "min": 0,
+      "max": 1,
+      "value": 0.1,
+      "meaning": "只评价高疲劳当期不适"
+    },
+    {
+      "key": "desireRate",
+      "label": "欲望失配权重",
+      "unit": "效用分/失配分",
+      "min": 0,
+      "max": 1,
+      "value": 0.1,
+      "meaning": "品质缺口与价值偏离的体验成本"
+    },
+    {
+      "key": "riskRate",
+      "label": "风险不适权重",
+      "unit": "效用分/压力分",
+      "min": 0,
+      "max": 1,
+      "value": 0.08,
+      "meaning": "风险敞口的主观不适，不重复扣市场亏损"
+    },
+    {
+      "key": "sleepNeed",
+      "label": "个人睡眠需求",
+      "unit": "小时/天",
+      "min": 4,
+      "max": 12,
+      "value": 8,
+      "meaning": "个人假设，换算成7天需求；输入边界不是医学建议，默认8小时待核对"
+    },
+    {
+      "key": "sleepDebtRepay",
+      "label": "补眠偿还效率",
+      "unit": "债小时/超需睡眠小时",
+      "min": 0,
+      "max": 1,
+      "value": 0.8,
+      "meaning": "超出个人需求的睡眠可逐步偿还睡眠债；上限1，不把补眠机械等同于逐小时偿还"
+    },
+    {
+      "key": "sleepDebtImpact",
+      "label": "睡眠债疲劳强度",
+      "unit": "分/周",
+      "min": 0,
+      "max": 30,
+      "value": 6,
+      "meaning": "历史睡眠债对每周疲劳的平滑饱和增量上限；需真实连续记录校准"
+    }
+  ],
+  "utilityDimensions": {
+    "safety": "安全",
+    "autonomy": "自主",
+    "quality": "品质",
+    "relation": "关系",
+    "growth": "成长",
+    "meaning": "意义"
+  },
+  "defaults": {
+    "version": "1.2.0",
+    "state": {
+      "health": 80,
+      "sleepQuality": 75,
+      "fatigue": 30,
+      "sleepDebt": 0,
+      "knowledge": 60,
+      "calibration": 60,
+      "metacognition": 65,
+      "bias": 30,
+      "regulation": 65,
+      "rumination": 30,
+      "stress": 30,
+      "motivation": 65,
+      "support": 65,
+      "trust": 65,
+      "network": 50,
+      "conflict": 25,
+      "cash": 30000,
+      "assets": 20000,
+      "debt": 10000,
+      "clarity": 65,
+      "agency": 65,
+      "comparison": 40,
+      "targetSpend": 500
+    },
+    "plan": {
+      "sleep": 56,
+      "work": 40,
+      "learn": 6,
+      "exercise": 3,
+      "relation": 6,
+      "leisure": 12,
+      "care": 21,
+      "wage": 80,
+      "essential": 800,
+      "discretionary": 300,
+      "learningSpend": 100,
+      "buy": 500,
+      "sell": 0,
+      "repay": 100,
+      "valueFit": 75,
+      "marketShock": 0,
+      "healthShock": 0,
+      "incomeShock": 0
+    },
+    "parameters": {
+      "fatigueRecovery": 0.3,
+      "learningGain": 1.2,
+      "annualReturn": 0.05,
+      "annualVol": 0.2,
+      "debtAPR": 0.08,
+      "bufferWeeks": 8,
+      "riskTolerance": 0.1,
+      "beta": 0.99,
+      "shockRetention": 0.5,
+      "emotionRate": 0.12,
+      "healthRate": 0.1,
+      "desireRate": 0.1,
+      "riskRate": 0.08,
+      "sleepNeed": 8,
+      "sleepDebtRepay": 0.8,
+      "sleepDebtImpact": 6
+    },
+    "weights": {
+      "safety": 1,
+      "autonomy": 1,
+      "quality": 1,
+      "relation": 1,
+      "growth": 1,
+      "meaning": 1
+    }
+  },
+  "formulaSource": "src/model.js",
+  "specification": "MODEL_SPEC.txt",
+  "baselineCommit": "7e0c11da4592e1b1e9d98c3c6d32571cca822f69",
+  "sleep": {
+    "source": "src/sleep.js",
+    "specification": "SLEEP_MODEL.txt",
+    "legacySource": "src/legacy-model.js",
+    "changesCoreEquations": true,
+    "states": [
+      "sleepDebt",
+      "sleepQuality",
+      "fatigue"
+    ],
+    "parameters": [
+      "sleepNeed",
+      "fatigueRecovery",
+      "sleepDebtRepay",
+      "sleepDebtImpact"
+    ],
+    "debtIdentity": "nextDebt = debt + max(0, weeklyNeed - sleep) - repaid",
+    "qualityFixedWithinProjection": true,
+    "assumesDebtRepaymentNeedsSurplus": true,
+    "defaultDebtIsUnmeasured": true,
+    "empiricallyFitted": false,
+    "demonstration": {
+      "source": "src/sleep-comparison.js",
+      "cases": {
+        "original": {
+          "label": "原例：需求8小时",
+          "need": 8,
+          "debt": 0
+        },
+        "higherNeed": {
+          "label": "需求改为9小时",
+          "need": 9,
+          "debt": 0
+        },
+        "existingDebt": {
+          "label": "已有14小时睡眠债",
+          "need": 8,
+          "debt": 14
+        }
+      },
+      "weeks": 52,
+      "extraHours": 12,
+      "sources": [
+        "unallocated",
+        "leisure"
+      ],
+      "usesOwnBaselinePerModel": true
+    },
+    "changedInVersion": "1.1.0",
+    "unchangedFrom11": true
+  },
+  "marginalAnalysis": {
+    "source": "src/marginal.js",
+    "scope": "time-allocation",
+    "method": "forward-finite-difference",
+    "path": "deterministic-z0",
+    "defaults": {
+      "target": "learn",
+      "source": "work",
+      "step": 1,
+      "frequency": "weekly",
+      "week": 1
+    },
+    "metrics": {
+      "cash": {
+        "label": "手上剩的钱",
+        "unit": "元"
+      },
+      "wealth": {
+        "label": "扣掉欠款后的资产",
+        "unit": "元"
+      },
+      "fatigue": {
+        "label": "累的程度",
+        "unit": "分"
+      },
+      "sleepDebt": {
+        "label": "估计欠的睡眠",
+        "unit": "小时"
+      },
+      "knowledge": {
+        "label": "学到多少",
+        "unit": "分"
+      },
+      "income": {
+        "label": "这段时间赚的钱",
+        "unit": "元"
+      },
+      "effectiveLearn": {
+        "label": "学习效果（折算小时）",
+        "unit": "小时"
+      },
+      "body": {
+        "label": "身体和精力",
+        "unit": "分"
+      },
+      "cognition": {
+        "label": "知识和判断",
+        "unit": "分"
+      },
+      "emotion": {
+        "label": "心情和动力",
+        "unit": "分"
+      },
+      "social": {
+        "label": "关系和帮助",
+        "unit": "分"
+      },
+      "finance": {
+        "label": "钱和欠款的情况",
+        "unit": "分"
+      },
+      "desire": {
+        "label": "想要什么，能否做主",
+        "unit": "分"
+      },
+      "objective": {
+        "label": "按个人偏好的综合得分",
+        "unit": "分"
+      }
+    },
+    "contributions": {
+      "safety": "安全",
+      "autonomy": "自主",
+      "quality": "品质",
+      "relation": "关系",
+      "growth": "成长",
+      "meaning": "意义",
+      "emotionCost": "情绪成本",
+      "healthCost": "疲劳成本",
+      "desireCost": "欲望成本",
+      "riskCost": "风险成本"
+    },
+    "stepFactors": [
+      0.5,
+      1,
+      2,
+      4
+    ],
+    "denominator": "step hours multiplied by the number of changed weeks",
+    "limitations": [
+      "Not an exact derivative or empirical causal estimate",
+      "No automatic optimal policy",
+      "Work income follows effective hours, not a fixed salary"
+    ]
+  },
+  "interface": {
+    "entry": "index.html",
+    "defaultPage": "guide",
+    "navigationSource": "src/navigation.js",
+    "mode": "single-entry hash-routed pages",
+    "pages": {
+      "guide": {
+        "title": "这周，你想改善什么？",
+        "description": "",
+        "controls": false
+      },
+      "decision": {
+        "title": "比较两种安排",
+        "description": "",
+        "controls": true
+      },
+      "demo": {
+        "title": "先看几个例子",
+        "description": "",
+        "controls": false
+      },
+      "marginal": {
+        "title": "多花一小时，值不值？",
+        "description": "",
+        "controls": true
+      },
+      "systems": {
+        "title": "我的当前状态",
+        "description": "",
+        "controls": true
+      },
+      "evidence": {
+        "title": "这些估计稳不稳？",
+        "description": "",
+        "controls": true
+      },
+      "model": {
+        "title": "底层模型",
+        "description": "变量定义、方程、机制参数与个人价值权重。",
+        "controls": true
+      },
+      "files": {
+        "title": "保存与导出",
+        "description": "",
+        "controls": false
+      }
+    },
+    "language": {
+      "source": "src/copy.js",
+      "fields": {
+        "health": "身体状况",
+        "sleepQuality": "睡得好不好",
+        "fatigue": "现在有多累",
+        "sleepDebt": "估计还欠多少睡眠",
+        "knowledge": "对这件事有多熟悉",
+        "calibration": "判断通常准不准",
+        "metacognition": "发现和改正错误的能力",
+        "bias": "多容易凭偏见做判断",
+        "regulation": "平复情绪的能力",
+        "rumination": "反复想烦心事",
+        "stress": "最近压力有多大",
+        "motivation": "自己有多想做",
+        "support": "需要时能得到的帮助",
+        "trust": "对身边人的信任",
+        "network": "接触机会的渠道",
+        "conflict": "关系中的矛盾",
+        "cash": "现在可用的钱",
+        "assets": "已投入投资的钱",
+        "debt": "还欠多少钱",
+        "clarity": "清不清楚自己想要什么",
+        "agency": "能不能自己做主",
+        "comparison": "和别人比较带来的压力",
+        "targetSpend": "希望每周花在改善生活上的钱",
+        "sleep": "睡眠",
+        "work": "工作",
+        "learn": "学习",
+        "exercise": "运动",
+        "relation": "陪伴与社交",
+        "leisure": "自由休息",
+        "care": "通勤、家务、照护",
+        "wage": "每个有效工作小时的收入",
+        "essential": "每周必须花的钱",
+        "discretionary": "改善生活的花费",
+        "learningSpend": "学习花费",
+        "buy": "买入投资",
+        "sell": "卖出投资",
+        "repay": "还本金",
+        "valueFit": "这件事合不合自己的心意",
+        "marketShock": "第一周投资涨跌",
+        "healthShock": "第一周身体状态下降",
+        "incomeShock": "第一周收入变化"
+      },
+      "groups": {
+        "body": "身体和精力",
+        "cognition": "知识和判断",
+        "emotion": "心情和动力",
+        "social": "关系和帮助",
+        "finance": "手上的钱和欠款",
+        "desire": "想要什么，能否做主"
+      },
+      "reference": "LANGUAGE_RESEARCH.txt",
+      "professionalDefinitionsRetained": true
+    }
+  },
+  "learningDemo": {
+    "source": "src/demo.js",
+    "scenario": {
+      "version": "1.2.0",
+      "state": {
+        "health": 80,
+        "sleepQuality": 75,
+        "fatigue": 30,
+        "sleepDebt": 0,
+        "knowledge": 60,
+        "calibration": 60,
+        "metacognition": 65,
+        "bias": 30,
+        "regulation": 65,
+        "rumination": 30,
+        "stress": 30,
+        "motivation": 65,
+        "support": 65,
+        "trust": 65,
+        "network": 50,
+        "conflict": 25,
+        "cash": 30000,
+        "assets": 0,
+        "debt": 0,
+        "clarity": 65,
+        "agency": 65,
+        "comparison": 40,
+        "targetSpend": 500
+      },
+      "plan": {
+        "sleep": 56,
+        "work": 40,
+        "learn": 6,
+        "exercise": 3,
+        "relation": 7,
+        "leisure": 14,
+        "care": 42,
+        "wage": 80,
+        "essential": 800,
+        "discretionary": 300,
+        "learningSpend": 100,
+        "buy": 0,
+        "sell": 0,
+        "repay": 0,
+        "valueFit": 75,
+        "marketShock": 0,
+        "healthShock": 0,
+        "incomeShock": 0
+      },
+      "parameters": {
+        "fatigueRecovery": 0.3,
+        "learningGain": 1.2,
+        "annualReturn": 0.05,
+        "annualVol": 0.2,
+        "debtAPR": 0.08,
+        "bufferWeeks": 8,
+        "riskTolerance": 0.1,
+        "beta": 0.99,
+        "shockRetention": 0.5,
+        "emotionRate": 0.12,
+        "healthRate": 0.1,
+        "desireRate": 0.1,
+        "riskRate": 0.08,
+        "sleepNeed": 8,
+        "sleepDebtRepay": 0.8,
+        "sleepDebtImpact": 6
+      },
+      "weights": {
+        "safety": 1,
+        "autonomy": 1,
+        "quality": 1,
+        "relation": 1,
+        "growth": 1,
+        "meaning": 1
+      }
+    },
+    "weeks": 12,
+    "amounts": [
+      1,
+      2,
+      4
+    ],
+    "sources": [
+      "work",
+      "sleep"
+    ],
+    "independentOfCurrentExperiment": true
+  },
+  "goalDemos": {
+    "source": "src/demo.js",
+    "goals": {
+      "learn": {
+        "label": "多学一点",
+        "action": "每周多学",
+        "metrics": [
+          "knowledge",
+          "cash",
+          "fatigue"
+        ],
+        "options": [
+          {
+            "id": "work",
+            "source": "work",
+            "target": "learn",
+            "label": "少工作，多学习"
+          },
+          {
+            "id": "sleep",
+            "source": "sleep",
+            "target": "learn",
+            "label": "少睡眠，多学习"
+          }
+        ]
+      },
+      "recover": {
+        "label": "少累一点",
+        "action": "每周多休息",
+        "metrics": [
+          "fatigue",
+          "cash",
+          "knowledge"
+        ],
+        "options": [
+          {
+            "id": "work-to-sleep",
+            "source": "work",
+            "target": "sleep",
+            "label": "少工作，补睡眠"
+          },
+          {
+            "id": "work-to-leisure",
+            "source": "work",
+            "target": "leisure",
+            "label": "少工作，多休闲"
+          }
+        ]
+      },
+      "income": {
+        "label": "增加收入",
+        "action": "每周多工作",
+        "metrics": [
+          "income",
+          "cash",
+          "fatigue",
+          "knowledge"
+        ],
+        "options": [
+          {
+            "id": "leisure-to-work",
+            "source": "leisure",
+            "target": "work",
+            "label": "少休闲，多工作"
+          },
+          {
+            "id": "learn-to-work",
+            "source": "learn",
+            "target": "work",
+            "label": "少学习，多工作"
+          }
+        ]
+      }
+    },
+    "scenario": {
+      "version": "1.2.0",
+      "state": {
+        "health": 80,
+        "sleepQuality": 75,
+        "fatigue": 30,
+        "sleepDebt": 0,
+        "knowledge": 60,
+        "calibration": 60,
+        "metacognition": 65,
+        "bias": 30,
+        "regulation": 65,
+        "rumination": 30,
+        "stress": 30,
+        "motivation": 65,
+        "support": 65,
+        "trust": 65,
+        "network": 50,
+        "conflict": 25,
+        "cash": 30000,
+        "assets": 0,
+        "debt": 0,
+        "clarity": 65,
+        "agency": 65,
+        "comparison": 40,
+        "targetSpend": 500
+      },
+      "plan": {
+        "sleep": 56,
+        "work": 40,
+        "learn": 6,
+        "exercise": 3,
+        "relation": 7,
+        "leisure": 14,
+        "care": 42,
+        "wage": 80,
+        "essential": 800,
+        "discretionary": 300,
+        "learningSpend": 100,
+        "buy": 0,
+        "sell": 0,
+        "repay": 0,
+        "valueFit": 75,
+        "marketShock": 0,
+        "healthShock": 0,
+        "incomeShock": 0
+      },
+      "parameters": {
+        "fatigueRecovery": 0.3,
+        "learningGain": 1.2,
+        "annualReturn": 0.05,
+        "annualVol": 0.2,
+        "debtAPR": 0.08,
+        "bufferWeeks": 8,
+        "riskTolerance": 0.1,
+        "beta": 0.99,
+        "shockRetention": 0.5,
+        "emotionRate": 0.12,
+        "healthRate": 0.1,
+        "desireRate": 0.1,
+        "riskRate": 0.08,
+        "sleepNeed": 8,
+        "sleepDebtRepay": 0.8,
+        "sleepDebtImpact": 6
+      },
+      "weights": {
+        "safety": 1,
+        "autonomy": 1,
+        "quality": 1,
+        "relation": 1,
+        "growth": 1,
+        "meaning": 1
+      }
+    },
+    "weeks": 12,
+    "amounts": [
+      1,
+      2,
+      4
+    ],
+    "incomeRule": "effective hours multiplied by the same hourly wage; spending unchanged",
+    "independentOfCurrentExperiment": true,
+    "preservesSelectionPerGoalAcrossReload": true
+  },
+  "decisionGuide": {
+    "source": "src/guide.js",
+    "defaults": {
+      "goal": "learn",
+      "amount": 2,
+      "protectSleep": true,
+      "protectWork": false,
+      "protectLearn": false,
+      "incomeMode": "unknown"
+    },
+    "goals": {
+      "learn": {
+        "label": "多学一点",
+        "action": "给学习腾时间",
+        "metric": "knowledge",
+        "direction": 1,
+        "metrics": [
+          "knowledge",
+          "cash",
+          "fatigue"
+        ],
+        "hint": "看知识积累能否增加，同时比较现金和疲劳的变化。知识分不是考试成绩。",
+        "review": "实际多学了多久？完成了什么？工作、休息和疲劳付出了什么代价？",
+        "question": "这周准备学什么？执行后，与预期有什么不同？",
+        "placeholder": "例如：完成一个课程单元；记录实际学习时数、工作是否受影响、疲劳有没有变化。"
+      },
+      "recover": {
+        "label": "少累一点",
+        "action": "给睡眠或休闲腾时间",
+        "metric": "fatigue",
+        "direction": -1,
+        "metrics": [
+          "fatigue",
+          "cash",
+          "knowledge"
+        ],
+        "hint": "看累积疲劳能否降低，同时比较收入与学习的代价。疲劳分不是健康诊断。",
+        "review": "腾出的时间真的用于休息了吗？实际疲劳有没有减轻？收入或学习受了什么影响？",
+        "question": "这周准备怎样休息？执行后，是否真的轻松了一点？",
+        "placeholder": "例如：减少两小时额外工作，留给散步或休息；记录实际工作、睡眠时数和疲劳感受。"
+      },
+      "income": {
+        "label": "增加收入",
+        "action": "给有偿工作腾时间",
+        "metric": "income",
+        "direction": 1,
+        "metrics": [
+          "income",
+          "cash",
+          "fatigue",
+          "knowledge"
+        ],
+        "hint": "只估算额外有效工时有报酬的情况；暂不估算涨薪、跳槽、投资或技能变现。",
+        "review": "额外工作实际获得了多少报酬？扣除新增支出后剩下多少？疲劳、睡眠和学习是否受影响？",
+        "question": "这周有哪些确定有报酬的额外工作？执行后，收入与代价如何？",
+        "placeholder": "例如：先确认两小时额外工作如何计酬；记录实际到账、额外费用和疲劳变化。"
+      }
+    },
+    "options": {
+      "learn": [
+        {
+          "id": "unallocated",
+          "source": "unallocated",
+          "target": "learn",
+          "label": "用尚未安排的时间",
+          "explanation": "不减少已有活动，但会占用原本可自由安排的缓冲。"
+        },
+        {
+          "id": "work",
+          "source": "work",
+          "target": "learn",
+          "label": "少工作一点",
+          "explanation": "用工作时间换学习，可能少一部分收入；现实中还要确认职责是否允许。"
+        },
+        {
+          "id": "leisure",
+          "source": "leisure",
+          "target": "learn",
+          "label": "少一点自主休闲",
+          "explanation": "学习增加了，自主休息和情绪调节的空间也会减少。"
+        },
+        {
+          "id": "sleep",
+          "source": "sleep",
+          "target": "learn",
+          "label": "少睡一点",
+          "explanation": "工作时长不变，但少睡可能通过疲劳降低后续效率，不是免费多学。"
+        }
+      ],
+      "recover": [
+        {
+          "id": "unallocated-to-sleep",
+          "source": "unallocated",
+          "target": "sleep",
+          "label": "用空余时间补睡眠",
+          "explanation": "不减少已有活动，但会占用自由缓冲。睡眠已经充足时，本模型未必算出额外改善。"
+        },
+        {
+          "id": "work-to-sleep",
+          "source": "work",
+          "target": "sleep",
+          "label": "少工作，补睡眠",
+          "explanation": "减轻工作负荷、增加睡眠，代价可能是收入减少；先确认工作职责允许。"
+        },
+        {
+          "id": "work-to-leisure",
+          "source": "work",
+          "target": "leisure",
+          "label": "少工作，留点自主休闲",
+          "explanation": "减少工作负荷，留出能自己支配的休息时间，同时可能少一部分收入。"
+        },
+        {
+          "id": "learn-to-leisure",
+          "source": "learn",
+          "target": "leisure",
+          "label": "少学一点，缓一缓",
+          "explanation": "降低总投入，给休息留出空间；代价是知识积累可能放慢。"
+        },
+        {
+          "id": "leisure-to-sleep",
+          "source": "leisure",
+          "target": "sleep",
+          "label": "少一点休闲，多一点睡眠",
+          "explanation": "睡眠不足时可能受益，但会减少自主休闲；不是睡得越久就一定越不累。"
+        }
+      ],
+      "income": [
+        {
+          "id": "unallocated-to-work",
+          "source": "unallocated",
+          "target": "work",
+          "label": "用空余时间增加有偿工作",
+          "explanation": "不减少已有活动，但自由缓冲减少，疲劳也可能增加。"
+        },
+        {
+          "id": "leisure-to-work",
+          "source": "leisure",
+          "target": "work",
+          "label": "少一点休闲，多一点有偿工作",
+          "explanation": "用自主休闲换报酬，疲劳和恢复代价可能抵消一部分收入增益。"
+        },
+        {
+          "id": "learn-to-work",
+          "source": "learn",
+          "target": "work",
+          "label": "少学一点，增加有偿工作",
+          "explanation": "把学习时间换成当下报酬，代价是知识积累可能放慢。"
+        },
+        {
+          "id": "sleep-to-work",
+          "source": "sleep",
+          "target": "work",
+          "label": "少睡一点，增加有偿工作",
+          "explanation": "工时虽增加，少睡造成的效率损失也可能抵消报酬；模型可行不等于健康上适宜。"
+        }
+      ]
+    },
+    "comparisonWeeks": [
+      4,
+      12,
+      26,
+      52
+    ],
+    "trialWeeks": 1,
+    "usesCurrentScenarioAndSchedule": true,
+    "automaticallyRecalculates": true,
+    "storageKey": "financial-human-weekly-trial-v5",
+    "legacyReadKeys": [
+      "financial-human-weekly-trial-v4",
+      "financial-human-weekly-trial-v3",
+      "financial-human-weekly-trial-v2",
+      "financial-human-weekly-trial-v1"
+    ],
+    "requiresGoalImprovement": true,
+    "incomeRequiresEffectiveHourlyPay": true,
+    "usesExistingMarginalEngine": true,
+    "automaticallyRanksPlans": false,
+    "automaticallyCalibratesFromNotes": false,
+    "interface": {
+      "mode": "one-step-at-a-time",
+      "steps": [
+        {
+          "label": "选择目标",
+          "heading": "guide-goal-title"
+        },
+        {
+          "label": "现状与底线",
+          "heading": "guide-boundaries-title"
+        },
+        {
+          "label": "比较代价",
+          "heading": "guide-compare-title"
+        },
+        {
+          "label": "选择方案",
+          "heading": "guide-choice-title"
+        },
+        {
+          "label": "试一周再回看",
+          "heading": "guide-review-title"
+        }
+      ],
+      "initialStep": 1,
+      "revisitCompletedSteps": true,
+      "preservesDraftsAcrossReload": true,
+      "invalidatedPlansRequireReselection": true,
+      "savedTrialOpensAtStep": 5
+    },
+    "amount": {
+      "min": 0,
+      "max": 48,
+      "step": 1,
+      "unit": "hours/week",
+      "control": "range",
+      "zero": "keep the original plan; no marginal division or new trial"
+    },
+    "comparison": {
+      "source": "src/comparison.js",
+      "limits": {
+        "minCash": {
+          "label": "最低现金",
+          "unit": "元",
+          "max": 1000000000
+        },
+        "minSleep": {
+          "label": "每周最低睡眠",
+          "unit": "小时",
+          "max": 168
+        },
+        "maxIncomeLoss": {
+          "label": "最多减少收入",
+          "unit": "元",
+          "max": 1000000000
+        }
+      },
+      "defaultLimits": {
+        "minCash": null,
+        "minSleep": null,
+        "maxIncomeLoss": null
+      },
+      "defaultView": {
+        "pairs": {
+          "learn": [
+            null,
+            null
+          ],
+          "recover": [
+            null,
+            null
+          ],
+          "income": [
+            null,
+            null
+          ]
+        },
+        "metric": "effectiveLearn",
+        "trendOpen": false,
+        "detailOpen": false,
+        "limitsOpen": false
+      },
+      "effort": "planned time transferred each week multiplied by the comparison horizon",
+      "effectiveLearning": "sum of weekly model-estimated effective learning hours",
+      "cashMargin": "minimum of initial and weekly closing cash minus minCash; not intraday liquidity",
+      "sleepMargin": "minimum actual weekly sleep minus minSleep, after weekly overrides",
+      "incomeMargin": "candidate cumulative work income minus baseline cumulative work income plus maxIncomeLoss",
+      "unsetLimit": null,
+      "zeroIsExplicitLimit": true,
+      "charts": {
+        "main": "two plans, baseline and adjusted values, signed deltas with a separate scale per metric",
+        "weekly": [
+          "cash",
+          "fatigue",
+          "effectiveLearn",
+          "sleepDebt"
+        ],
+        "includesOriginalPlan": true,
+        "deterministic": true
+      },
+      "percentage": {
+        "formula": "100 * (adjusted - original) / original",
+        "rounding": "one decimal, calculated before display rounding",
+        "undefinedWhen": "original <= 1e-9 or nonfinite",
+        "fatigueSign": "negative means a reduced index, not a validated percentage improvement in experienced fatigue"
+      },
+      "processFatigue": {
+        "average": "sum of week-end fatigue for weeks 1..H divided by H",
+        "burden": "sum of week-end fatigue times a 1-week interval",
+        "burdenUnit": "index point-weeks",
+        "excludesInitialState": true,
+        "notIntradayIntegral": true
+      },
+      "invalidLimitDraftsBlockResults": true,
+      "preservesComparisonAndExpandedState": true,
+      "changesCoreEquations": false
+    }
+  },
+  "workspace": {
+    "source": "src/workspace.js",
+    "storageKey": "financial-human-workspace-v1.2",
+    "exportFormat": "financial-human-workspace-v1.2",
+    "autoSave": true,
+    "atomicImport": true,
+    "includes": [
+      "current",
+      "baseline",
+      "schedule",
+      "baselineSchedule",
+      "weeks",
+      "marginalConfig",
+      "decision",
+      "notes",
+      "selections",
+      "demoSettings",
+      "invalidFieldDrafts",
+      "scheduleDraft",
+      "marginalDraft",
+      "sleepDiary"
+    ],
+    "legacyExperimentFormat": "financial-human-experiment-v0.3",
+    "historicalTrialSnapshotIncluded": false,
+    "legacyFormats": [
+      "financial-human-workspace-v1",
+      "financial-human-experiment-v0.3",
+      "financial-human-experiment-v1.0",
+      "financial-human-workspace-v1.1",
+      "financial-human-experiment-v1.1"
+    ],
+    "migrationDefaults": {
+      "sleepDebt": 0,
+      "sleepNeed": 8,
+      "sleepDebtRepay": 0.8,
+      "sleepDebtImpact": 6
+    },
+    "writesLegacyKeys": false
+  },
+  "sleepDiary": {
+    "source": "src/sleep-diary.js",
+    "ui": "src/sleep-diary-ui.js",
+    "specification": "SLEEP_DIARY.txt",
+    "fields": {
+      "date": "local YYYY-MM-DD",
+      "hours": "previous night plus date naps, 0..24",
+      "fatigue": "date bedtime, subjective 0..10",
+      "quality": "1..5 mapped to 0,25,50,75,100",
+      "context": [
+        "ordinary",
+        "free",
+        "special"
+      ],
+      "note": "optional, not fitted"
+    },
+    "reference": {
+      "recentDays": 28,
+      "minRecords": 14,
+      "minRestedFreeDays": 5,
+      "maxFatigue": 3,
+      "minQuality": 3,
+      "hoursRange": [
+        4,
+        12
+      ],
+      "statistic": "median rounded to 0.25h",
+      "validatedNeedEstimator": false
+    },
+    "weeks": "Monday-Sunday plus preceding Sunday fatigue, no interpolation",
+    "debtStart": "zero per continuous segment, requires explicit acceptance",
+    "fit": {
+      "parameter": "fatigueRecovery",
+      "minWeeks": 6,
+      "maxWeeks": 12,
+      "latestAgeDays": 28,
+      "grid": [
+        0.05,
+        0.8,
+        0.01
+      ],
+      "training": "first floor(2n/3)",
+      "holdout": "remaining chronological weeks",
+      "maxNearOptimalSpan": 0.2,
+      "minimumHoldoutMSEReduction": 1,
+      "minimumRelativeReduction": 0.1,
+      "conditionalOnOtherInputs": true
+    },
+    "adoption": "explicit click, then linked recalculation",
+    "recordsDoNotMutateModel": true,
+    "keepsFixedExamples": true,
+    "localOnly": true
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "financial-human-model",
+  "version": "1.2.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "build": "node scripts/build-offline.mjs",
+    "build:browser-check": "node scripts/build-browser-check.mjs"
+  }
+}
