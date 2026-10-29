@@ -1,0 +1,347 @@
+{
+  "version": "1.0.0",
+  "integrity": {
+    "index.html": "51472db07db1920a966ca64dac2c76eeecd01734a4fac9535e1a4fe1b7070820",
+    "styles.css": "f13644f71bba313e53df22e1a43c8e9218f689a21126b94c9ebdc24852007e2a",
+    "app.offline.js": "662829296d58ac662fd3a0c710998ec8c0dc60ca515ab1275331dc83c242069f"
+  },
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
+  "startedAt": "2026-10-29T06:21:37.693Z",
+  "checks": [
+    {
+      "width": 390,
+      "name": "启动与单步骤显示",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "learn 五步完整流程",
+      "pass": false,
+      "error": "试行计划未保存"
+    },
+    {
+      "width": 390,
+      "name": "recover 五步完整流程",
+      "pass": false,
+      "error": "试行计划未保存"
+    },
+    {
+      "width": 390,
+      "name": "income 五步完整流程",
+      "pass": false,
+      "error": "试行计划未保存"
+    },
+    {
+      "width": 390,
+      "name": "底层参数自动重算并保留文字",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "方案失效、恢复与草稿",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "无效输入不显示旧方案",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "刷新后输入和草稿恢复",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "固定示例隔离与各档比较",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "guide 页面布局",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "decision 页面布局",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "systems 页面布局",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "model 页面布局",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "marginal 页面布局",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "evidence 页面布局",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "files 页面布局",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "启动与单步骤显示",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "learn 五步完整流程",
+      "pass": false,
+      "error": "试行计划未保存"
+    },
+    {
+      "width": 720,
+      "name": "recover 五步完整流程",
+      "pass": false,
+      "error": "试行计划未保存"
+    },
+    {
+      "width": 720,
+      "name": "income 五步完整流程",
+      "pass": false,
+      "error": "试行计划未保存"
+    },
+    {
+      "width": 720,
+      "name": "底层参数自动重算并保留文字",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "方案失效、恢复与草稿",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "无效输入不显示旧方案",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "刷新后输入和草稿恢复",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "固定示例隔离与各档比较",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "guide 页面布局",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "decision 页面布局",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "systems 页面布局",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "model 页面布局",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "marginal 页面布局",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "evidence 页面布局",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "files 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "启动与单步骤显示",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "learn 五步完整流程",
+      "pass": false,
+      "error": "试行计划未保存"
+    },
+    {
+      "width": 1024,
+      "name": "recover 五步完整流程",
+      "pass": false,
+      "error": "试行计划未保存"
+    },
+    {
+      "width": 1024,
+      "name": "income 五步完整流程",
+      "pass": false,
+      "error": "试行计划未保存"
+    },
+    {
+      "width": 1024,
+      "name": "底层参数自动重算并保留文字",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "方案失效、恢复与草稿",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "无效输入不显示旧方案",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "刷新后输入和草稿恢复",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "固定示例隔离与各档比较",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "guide 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "decision 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "systems 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "model 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "marginal 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "evidence 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "files 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "启动与单步骤显示",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "learn 五步完整流程",
+      "pass": false,
+      "error": "试行计划未保存"
+    },
+    {
+      "width": 1440,
+      "name": "recover 五步完整流程",
+      "pass": false,
+      "error": "试行计划未保存"
+    },
+    {
+      "width": 1440,
+      "name": "income 五步完整流程",
+      "pass": false,
+      "error": "试行计划未保存"
+    },
+    {
+      "width": 1440,
+      "name": "底层参数自动重算并保留文字",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "方案失效、恢复与草稿",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "无效输入不显示旧方案",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "刷新后输入和草稿恢复",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "固定示例隔离与各档比较",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "guide 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "decision 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "systems 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "model 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "marginal 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "evidence 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "files 页面布局",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "finishedAt": "2026-10-29T06:21:42.652Z",
+  "passed": false
+}

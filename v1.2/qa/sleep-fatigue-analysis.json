@@ -1,0 +1,274 @@
+{
+  "version": "1.0.0",
+  "scope": "Default-input reproduction, not the user personal workspace. Fatigue matches the screenshot; cash inputs may differ.",
+  "scenario": {
+    "version": "1.0.0",
+    "state": {
+      "health": 80,
+      "sleepQuality": 75,
+      "fatigue": 30,
+      "knowledge": 60,
+      "calibration": 60,
+      "metacognition": 65,
+      "bias": 30,
+      "regulation": 65,
+      "rumination": 30,
+      "stress": 30,
+      "motivation": 65,
+      "support": 65,
+      "trust": 65,
+      "network": 50,
+      "conflict": 25,
+      "cash": 30000,
+      "assets": 20000,
+      "debt": 10000,
+      "clarity": 65,
+      "agency": 65,
+      "comparison": 40,
+      "targetSpend": 500
+    },
+    "plan": {
+      "sleep": 56,
+      "work": 40,
+      "learn": 6,
+      "exercise": 3,
+      "relation": 6,
+      "leisure": 12,
+      "care": 21,
+      "wage": 80,
+      "essential": 800,
+      "discretionary": 300,
+      "learningSpend": 100,
+      "buy": 500,
+      "sell": 0,
+      "repay": 100,
+      "valueFit": 75,
+      "marketShock": 0,
+      "healthShock": 0,
+      "incomeShock": 0
+    },
+    "parameters": {
+      "fatigueRecovery": 0.3,
+      "learningGain": 1.2,
+      "annualReturn": 0.05,
+      "annualVol": 0.2,
+      "debtAPR": 0.08,
+      "bufferWeeks": 8,
+      "riskTolerance": 0.1,
+      "beta": 0.99,
+      "shockRetention": 0.5,
+      "emotionRate": 0.12,
+      "healthRate": 0.1,
+      "desireRate": 0.1,
+      "riskRate": 0.08
+    },
+    "weights": {
+      "safety": 1,
+      "autonomy": 1,
+      "quality": 1,
+      "relation": 1,
+      "growth": 1,
+      "meaning": 1
+    }
+  },
+  "weeks": 52,
+  "units": {
+    "finalFatigue": "index points",
+    "averageFatigue": "index points",
+    "fatigueBurden": "index point-weeks",
+    "percent": "relative change in the model index, not a validated change in experienced fatigue"
+  },
+  "sampling": "week-end fatigue for weeks 1 to 52; week 0 excluded from burden and mean",
+  "formulaCaps": {
+    "sleepDebtHoursPerWeek": 56,
+    "directRecoveryHoursPerWeek": 56,
+    "sleepQualityHoursPerWeek": 63
+  },
+  "baseline": {
+    "finalFatigue": 11.00952633394105,
+    "averageFatigue": 12.03556588488781,
+    "fatigueBurden": 625.849426014166
+  },
+  "cases": [
+    {
+      "source": "unallocated",
+      "extraHoursPerWeek": 7,
+      "totalTransferredHours": 364,
+      "finalFatigue": 10.217452300906807,
+      "averageFatigue": 11.643914136606949,
+      "fatigueBurden": 605.4835351035613,
+      "finalFatigueChange": -0.7920740330342433,
+      "finalFatiguePercent": -7.194442422035668,
+      "averageFatigueChange": -0.3916517482808608,
+      "averageFatiguePercent": -3.254119931100453,
+      "fatigueBurdenChange": -20.365890910604776,
+      "checkpoints": [
+        {
+          "week": 1,
+          "baseline": 25.015,
+          "adjusted": 25.015,
+          "change": 0
+        },
+        {
+          "week": 4,
+          "baseline": 16.62755250976563,
+          "adjusted": 16.585187414106183,
+          "change": -0.04236509565944502
+        },
+        {
+          "week": 12,
+          "baseline": 11.50120110123308,
+          "adjusted": 11.33835061304718,
+          "change": -0.1628504881859012
+        },
+        {
+          "week": 26,
+          "baseline": 11.016447672998146,
+          "adjusted": 10.635863257979036,
+          "change": -0.38058441501910956
+        },
+        {
+          "week": 52,
+          "baseline": 11.00952633394105,
+          "adjusted": 10.217452300906807,
+          "change": -0.7920740330342433
+        }
+      ]
+    },
+    {
+      "source": "unallocated",
+      "extraHoursPerWeek": 12,
+      "totalTransferredHours": 624,
+      "finalFatigue": 10.217452300906807,
+      "averageFatigue": 11.643914136606949,
+      "fatigueBurden": 605.4835351035613,
+      "finalFatigueChange": -0.7920740330342433,
+      "finalFatiguePercent": -7.194442422035668,
+      "averageFatigueChange": -0.3916517482808608,
+      "averageFatiguePercent": -3.254119931100453,
+      "fatigueBurdenChange": -20.365890910604776,
+      "checkpoints": [
+        {
+          "week": 1,
+          "baseline": 25.015,
+          "adjusted": 25.015,
+          "change": 0
+        },
+        {
+          "week": 4,
+          "baseline": 16.62755250976563,
+          "adjusted": 16.585187414106183,
+          "change": -0.04236509565944502
+        },
+        {
+          "week": 12,
+          "baseline": 11.50120110123308,
+          "adjusted": 11.33835061304718,
+          "change": -0.1628504881859012
+        },
+        {
+          "week": 26,
+          "baseline": 11.016447672998146,
+          "adjusted": 10.635863257979036,
+          "change": -0.38058441501910956
+        },
+        {
+          "week": 52,
+          "baseline": 11.00952633394105,
+          "adjusted": 10.217452300906807,
+          "change": -0.7920740330342433
+        }
+      ]
+    },
+    {
+      "source": "leisure",
+      "extraHoursPerWeek": 7,
+      "totalTransferredHours": 364,
+      "finalFatigue": 10.217452300906807,
+      "averageFatigue": 11.643914136606949,
+      "fatigueBurden": 605.4835351035613,
+      "finalFatigueChange": -0.7920740330342433,
+      "finalFatiguePercent": -7.194442422035668,
+      "averageFatigueChange": -0.3916517482808608,
+      "averageFatiguePercent": -3.254119931100453,
+      "fatigueBurdenChange": -20.365890910604776,
+      "checkpoints": [
+        {
+          "week": 1,
+          "baseline": 25.015,
+          "adjusted": 25.015,
+          "change": 0
+        },
+        {
+          "week": 4,
+          "baseline": 16.62755250976563,
+          "adjusted": 16.585187414106183,
+          "change": -0.04236509565944502
+        },
+        {
+          "week": 12,
+          "baseline": 11.50120110123308,
+          "adjusted": 11.33835061304718,
+          "change": -0.1628504881859012
+        },
+        {
+          "week": 26,
+          "baseline": 11.016447672998146,
+          "adjusted": 10.635863257979036,
+          "change": -0.38058441501910956
+        },
+        {
+          "week": 52,
+          "baseline": 11.00952633394105,
+          "adjusted": 10.217452300906807,
+          "change": -0.7920740330342433
+        }
+      ]
+    },
+    {
+      "source": "leisure",
+      "extraHoursPerWeek": 12,
+      "totalTransferredHours": 624,
+      "finalFatigue": 10.217452300906807,
+      "averageFatigue": 11.643914136606949,
+      "fatigueBurden": 605.4835351035613,
+      "finalFatigueChange": -0.7920740330342433,
+      "finalFatiguePercent": -7.194442422035668,
+      "averageFatigueChange": -0.3916517482808608,
+      "averageFatiguePercent": -3.254119931100453,
+      "fatigueBurdenChange": -20.365890910604776,
+      "checkpoints": [
+        {
+          "week": 1,
+          "baseline": 25.015,
+          "adjusted": 25.015,
+          "change": 0
+        },
+        {
+          "week": 4,
+          "baseline": 16.62755250976563,
+          "adjusted": 16.585187414106183,
+          "change": -0.04236509565944502
+        },
+        {
+          "week": 12,
+          "baseline": 11.50120110123308,
+          "adjusted": 11.33835061304718,
+          "change": -0.1628504881859012
+        },
+        {
+          "week": 26,
+          "baseline": 11.016447672998146,
+          "adjusted": 10.635863257979036,
+          "change": -0.38058441501910956
+        },
+        {
+          "week": 52,
+          "baseline": 11.00952633394105,
+          "adjusted": 10.217452300906807,
+          "change": -0.7920740330342433
+        }
+      ]
+    }
+  ]
+}

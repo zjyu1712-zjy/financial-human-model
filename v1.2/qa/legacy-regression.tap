@@ -1,0 +1,802 @@
+TAP version 13
+# Subtest: guide path totals, time transfers and chronological series match the existing model
+ok 1 - guide path totals, time transfers and chronological series match the existing model
+  ---
+  duration_ms: 9.196916
+  type: 'test'
+  ...
+# Subtest: cash and fatigue extrema include the starting point and sleep respects actual weekly overrides
+ok 2 - cash and fatigue extrema include the starting point and sleep respects actual weekly overrides
+  ---
+  duration_ms: 0.574
+  type: 'test'
+  ...
+# Subtest: cash, sleep and income limits have signed margins and filter without changing physical results
+ok 3 - cash, sleep and income limits have signed margins and filter without changing physical results
+  ---
+  duration_ms: 12.515417
+  type: 'test'
+  ...
+# Subtest: limits check every week and do not confuse a cash difference with reduced income
+ok 4 - limits check every week and do not confuse a cash difference with reduced income
+  ---
+  duration_ms: 5.24775
+  type: 'test'
+  ...
+# Subtest: unset limits differ from zero and malformed limits are rejected
+ok 5 - unset limits differ from zero and malformed limits are rejected
+  ---
+  duration_ms: 9.191125
+  type: 'test'
+  ...
+# Subtest: direct comparison shows extra effective input and charts while full detail stays separate
+ok 6 - direct comparison shows extra effective input and charts while full detail stays separate
+  ---
+  duration_ms: 49.803416
+  type: 'test'
+  ...
+# Subtest: comparison selection swaps instead of duplicating and persists separately for each goal
+ok 7 - comparison selection swaps instead of duplicating and persists separately for each goal
+  ---
+  duration_ms: 110.834583
+  type: 'test'
+  ...
+# Subtest: limits, views and drafts survive page switching, refresh and full export/import
+ok 8 - limits, views and drafts survive page switching, refresh and full export/import
+  ---
+  duration_ms: 171.20525
+  type: 'test'
+  ...
+# Subtest: invalid limit drafts clear graphs, block saving, survive refresh and recover notes
+ok 9 - invalid limit drafts clear graphs, block saving, survive refresh and recover notes
+  ---
+  duration_ms: 73.720042
+  type: 'test'
+  ...
+# Subtest: new constraints invalidate chosen trials without losing notes and saved trials carry limits
+ok 10 - new constraints invalidate chosen trials without losing notes and saved trials carry limits
+  ---
+  duration_ms: 91.719
+  type: 'test'
+  ...
+# Subtest: earlier workspaces and trials migrate to unset limits and default comparison view
+ok 11 - earlier workspaces and trials migrate to unset limits and default comparison view
+  ---
+  duration_ms: 31.613125
+  type: 'test'
+  ...
+# Subtest: parameter edits recalculate all graph values and margins without clearing comparison controls
+ok 12 - parameter edits recalculate all graph values and margins without clearing comparison controls
+  ---
+  duration_ms: 72.708792
+  type: 'test'
+  ...
+# Subtest: learning gain updates knowledge and later cash, while wage updates first-week cash
+ok 13 - learning gain updates knowledge and later cash, while wage updates first-week cash
+  ---
+  duration_ms: 73.685959
+  type: 'test'
+  ...
+# Subtest: demo inputs are isolated copies and match both previously supplied examples
+ok 14 - demo inputs are isolated copies and match both previously supplied examples
+  ---
+  duration_ms: 4.286334
+  type: 'test'
+  ...
+# Subtest: all six demo cases match marginal exports and conserve the 168-hour budget
+ok 15 - all six demo cases match marginal exports and conserve the 168-hour budget
+  ---
+  duration_ms: 5.744916
+  type: 'test'
+  ...
+# Subtest: demo computes marginal segments for 0→1, 1→2, 2→4 instead of summing average rates
+ok 16 - demo computes marginal segments for 0→1, 1→2, 2→4 instead of summing average rates
+  ---
+  duration_ms: 3.628833
+  type: 'test'
+  ...
+# Subtest: navigation resolves all pages and preserves old bookmark destinations
+ok 17 - navigation resolves all pages and preserves old bookmark destinations
+  ---
+  duration_ms: 0.160292
+  type: 'test'
+  ...
+# Subtest: offline demo uses the same live calculations as the source module
+ok 18 - offline demo uses the same live calculations as the source module
+  ---
+  duration_ms: 37.2365
+  type: 'test'
+  ...
+# Subtest: demo defaults to two comparisons; one click shows 2, 4 hours or all six without JSON import
+ok 19 - demo defaults to two comparisons; one click shows 2, 4 hours or all six without JSON import
+  ---
+  duration_ms: 47.728791
+  type: 'test'
+  ...
+# Subtest: all 18 goal demo cases use the existing engine and conserve time without changing shared inputs
+ok 20 - all 18 goal demo cases use the existing engine and conserve time without changing shared inputs
+  ---
+  duration_ms: 24.913
+  type: 'test'
+  ...
+# Subtest: all demo goals switch 1, 2, 4 hours and overview while retaining their own selection
+ok 21 - all demo goals switch 1, 2, 4 hours and overview while retaining their own selection
+  ---
+  duration_ms: 80.624416
+  type: 'test'
+  ...
+# Subtest: operational pages keep data and errors while full explanations belong to the model page
+ok 22 - operational pages keep data and errors while full explanations belong to the model page
+  ---
+  duration_ms: 184.255792
+  type: 'test'
+  ...
+# Subtest: only one page is visible and hash navigation leaves input, baseline, schedule and drafts untouched
+ok 23 - only one page is visible and hash navigation leaves input, baseline, schedule and drafts untouched
+  ---
+  duration_ms: 93.119542
+  type: 'test'
+  ...
+# Subtest: the default page follows goal, boundaries, choices and a one-week trial
+ok 24 - the default page follows goal, boundaries, choices and a one-week trial
+  ---
+  duration_ms: 84.377125
+  type: 'test'
+  ...
+# Subtest: changing a boundary clears the trial and does not silently adopt excluded or malformed saved plans
+ok 25 - changing a boundary clears the trial and does not silently adopt excluded or malformed saved plans
+  ---
+  duration_ms: 84.318833
+  type: 'test'
+  ...
+# Subtest: personal inputs and weekly overrides are linked without a copy action
+ok 26 - personal inputs and weekly overrides are linked without a copy action
+  ---
+  duration_ms: 51.224625
+  type: 'test'
+  ...
+# Subtest: unsaved trial notes stay attached to their original arrangement when exploring other options
+ok 27 - unsaved trial notes stay attached to their original arrangement when exploring other options
+  ---
+  duration_ms: 56.8965
+  type: 'test'
+  ...
+# Subtest: switching goals changes candidates, lead outcomes and reflection without mixing drafts
+ok 28 - switching goals changes candidates, lead outcomes and reflection without mixing drafts
+  ---
+  duration_ms: 82.885584
+  type: 'test'
+  ...
+# Subtest: all goals save and reload their own choices and preserve professional inputs across pages
+ok 29 - all goals save and reload their own choices and preserve professional inputs across pages
+  ---
+  duration_ms: 157.638625
+  type: 'test'
+  ...
+# Subtest: old learning records load explicitly, remain intact, and do not mask a broken new save
+ok 30 - old learning records load explicitly, remain intact, and do not mask a broken new save
+  ---
+  duration_ms: 58.12075
+  type: 'test'
+  ...
+# Subtest: wizard reveals only one step, prevents skipping and requires a choice before the trial
+ok 31 - wizard reveals only one step, prevents skipping and requires a choice before the trial
+  ---
+  duration_ms: 27.452875
+  type: 'test'
+  ...
+# Subtest: wizard back, completed-step navigation and page changes retain choices, settings and drafts
+ok 32 - wizard back, completed-step navigation and page changes retain choices, settings and drafts
+  ---
+  duration_ms: 35.48325
+  type: 'test'
+  ...
+# Subtest: wizard rechecks changed boundaries, retains valid choices and restores invalidated drafts on undo
+ok 33 - wizard rechecks changed boundaries, retains valid choices and restores invalidated drafts on undo
+  ---
+  duration_ms: 60.513916
+  type: 'test'
+  ...
+# Subtest: wizard income blockers are visible on the first step and cannot be bypassed
+ok 34 - wizard income blockers are visible on the first step and cannot be bypassed
+  ---
+  duration_ms: 40.7525
+  type: 'test'
+  ...
+# Subtest: wizard empty comparisons stop progression without relaxing boundaries and can recover
+ok 35 - wizard empty comparisons stop progression without relaxing boundaries and can recover
+  ---
+  duration_ms: 44.133959
+  type: 'test'
+  ...
+# Subtest: wizard saves and resumes all three goals at reflection, with all earlier steps revisitable
+ok 36 - wizard saves and resumes all three goals at reflection, with all earlier steps revisitable
+  ---
+  duration_ms: 210.736709
+  type: 'test'
+  ...
+# Subtest: wizard changed goal or amount requires reviewing again while former drafts stay recoverable
+ok 37 - wizard changed goal or amount requires reviewing again while former drafts stay recoverable
+  ---
+  duration_ms: 65.734
+  type: 'test'
+  ...
+# Subtest: returning to edit recomputes comparison amounts and the one-week plan from the same model
+ok 38 - returning to edit recomputes comparison amounts and the one-week plan from the same model
+  ---
+  duration_ms: 55.740583
+  type: 'test'
+  ...
+# Subtest: tiny nonzero money effects are not presented as zero improvement
+ok 39 - tiny nonzero money effects are not presented as zero improvement
+  ---
+  duration_ms: 49.124791
+  type: 'test'
+  ...
+# Subtest: progress styling and direct comparison charts track the active review state
+ok 40 - progress styling and direct comparison charts track the active review state
+  ---
+  duration_ms: 34.490417
+  type: 'test'
+  ...
+# Subtest: guide keeps numerical tradeoffs and blockers without repeated explanatory copy
+ok 41 - guide keeps numerical tradeoffs and blockers without repeated explanatory copy
+  ---
+  duration_ms: 55.34375
+  type: 'test'
+  ...
+# Subtest: every integer from 0 to 48 works for all three goals without nonfinite outputs
+ok 42 - every integer from 0 to 48 works for all three goals without nonfinite outputs
+  ---
+  duration_ms: 286.118375
+  type: 'test'
+  ...
+# Subtest: expanded hours use the unchanged marginal engine with scheduled weeks and every horizon
+ok 43 - expanded hours use the unchanged marginal engine with scheduled weeks and every horizon
+  ---
+  duration_ms: 435.735541
+  type: 'test'
+  ...
+# Subtest: 48 is not clamped into a feasible plan when source time or funds are insufficient
+ok 44 - 48 is not clamped into a feasible plan when source time or funds are insufficient
+  ---
+  duration_ms: 1.32275
+  type: 'test'
+  ...
+# Subtest: slider updates while dragging, retains separate drafts, and handles zero without a fake trial
+ok 45 - slider updates while dragging, retains separate drafts, and handles zero without a fake trial
+  ---
+  duration_ms: 143.438541
+  type: 'test'
+  ...
+# Subtest: zero and maximum slider values survive full export and import
+ok 46 - zero and maximum slider values survive full export and import
+  ---
+  duration_ms: 211.495125
+  type: 'test'
+  ...
+# Subtest: draft capacity covers all goals, hours and choices rather than failing at 100 records
+ok 47 - draft capacity covers all goals, hours and choices rather than failing at 100 records
+  ---
+  duration_ms: 25.995625
+  type: 'test'
+  ...
+# Subtest: slider markup has an explicit range, output and an accessible label
+ok 48 - slider markup has an explicit range, output and an accessible label
+  ---
+  duration_ms: 0.396334
+  type: 'test'
+  ...
+# Subtest: default decision flow protects sleep and shows the two affordable time sources
+ok 49 - default decision flow protects sleep and shows the two affordable time sources
+  ---
+  duration_ms: 9.912833
+  type: 'test'
+  ...
+# Subtest: boundaries filter choices without changing their underlying model results
+ok 50 - boundaries filter choices without changing their underlying model results
+  ---
+  duration_ms: 9.207209
+  type: 'test'
+  ...
+# Subtest: guide results use the existing marginal engine rather than a simplified score
+ok 51 - guide results use the existing marginal engine rather than a simplified score
+  ---
+  duration_ms: 24.015542
+  type: 'test'
+  ...
+# Subtest: empty choices stay empty when no source satisfies the boundaries
+ok 52 - empty choices stay empty when no source satisfies the boundaries
+  ---
+  duration_ms: 2.223459
+  type: 'test'
+  ...
+# Subtest: financial or time failure cannot be presented as an available trial
+ok 53 - financial or time failure cannot be presented as an available trial
+  ---
+  duration_ms: 0.219375
+  type: 'test'
+  ...
+# Subtest: goal input rejects missing boundaries, invalid amounts and extra fields
+ok 54 - goal input rejects missing boundaries, invalid amounts and extra fields
+  ---
+  duration_ms: 0.307708
+  type: 'test'
+  ...
+# Subtest: all goals and increments use the same engine and conserve hours without mutating inputs
+ok 55 - all goals and increments use the same engine and conserve hours without mutating inputs
+  ---
+  duration_ms: 54.137542
+  type: 'test'
+  ...
+# Subtest: recovery compares different destinations and protects work and learning independently
+ok 56 - recovery compares different destinations and protects work and learning independently
+  ---
+  duration_ms: 8.167375
+  type: 'test'
+  ...
+# Subtest: income is blocked for unknown or fixed pay, and tracks work income rather than asset wealth
+ok 57 - income is blocked for unknown or fixed pay, and tracks work income rather than asset wealth
+  ---
+  duration_ms: 5.8355
+  type: 'test'
+  ...
+# Subtest: a feasible schedule is not labeled successful when the requested outcome does not improve
+ok 58 - a feasible schedule is not labeled successful when the requested outcome does not improve
+  ---
+  duration_ms: 8.457458
+  type: 'test'
+  ...
+# Subtest: legacy and multi-goal trial records roundtrip and cannot borrow a different goals choice
+ok 59 - legacy and multi-goal trial records roundtrip and cannot borrow a different goals choice
+  ---
+  duration_ms: 16.979833
+  type: 'test'
+  ...
+# Subtest: one recurring hour matches explicit plan simulation and has a 12-hour denominator
+ok 60 - one recurring hour matches explicit plan simulation and has a 12-hour denominator
+  ---
+  duration_ms: 4.949625
+  type: 'test'
+  ...
+# Subtest: a single intervention has one-hour denominator and follows through later weeks
+ok 61 - a single intervention has one-hour denominator and follows through later weeks
+  ---
+  duration_ms: 1.673791
+  type: 'test'
+  ...
+# Subtest: week-specific overrides are perturbed relative to their actual values, with unrelated fields retained
+ok 62 - week-specific overrides are perturbed relative to their actual values, with unrelated fields retained
+  ---
+  duration_ms: 0.716292
+  type: 'test'
+  ...
+# Subtest: does not mutate scenario, weekly overrides, or settings
+ok 63 - does not mutate scenario, weekly overrides, or settings
+  ---
+  duration_ms: 1.056375
+  type: 'test'
+  ...
+# Subtest: sources matter: sleep sacrifice and work sacrifice have different outcomes
+ok 64 - sources matter: sleep sacrifice and work sacrifice have different outcomes
+  ---
+  duration_ms: 3.141458
+  type: 'test'
+  ...
+# Subtest: unused time can fund an increase but cannot be double-booked
+ok 65 - unused time can fund an increase but cannot be double-booked
+  ---
+  duration_ms: 1.868459
+  type: 'test'
+  ...
+# Subtest: a scheduled shortage reports the exact week without clipping the requested change
+ok 66 - a scheduled shortage reports the exact week without clipping the requested change
+  ---
+  duration_ms: 0.365292
+  type: 'test'
+  ...
+# Subtest: a one-week change does not consume a source in other weeks
+ok 67 - a one-week change does not consume a source in other weeks
+  ---
+  duration_ms: 0.610458
+  type: 'test'
+  ...
+# Subtest: a later cash failure cannot receive a whole-period marginal result
+ok 68 - a later cash failure cannot receive a whole-period marginal result
+  ---
+  duration_ms: 0.925417
+  type: 'test'
+  ...
+# Subtest: infeasible baseline does not yield a plausible-looking comparison
+ok 69 - infeasible baseline does not yield a plausible-looking comparison
+  ---
+  duration_ms: 0.19
+  type: 'test'
+  ...
+# Subtest: score contributions reconcile exactly to the discounted net objective difference
+ok 70 - score contributions reconcile exactly to the discounted net objective difference
+  ---
+  duration_ms: 1.40725
+  type: 'test'
+  ...
+# Subtest: a reduction in a cost has a positive contribution to net utility
+ok 71 - a reduction in a cost has a positive contribution to net utility
+  ---
+  duration_ms: 0.406625
+  type: 'test'
+  ...
+# Subtest: preferences alter evaluation, not physical marginal effects
+ok 72 - preferences alter evaluation, not physical marginal effects
+  ---
+  duration_ms: 2.766875
+  type: 'test'
+  ...
+# Subtest: adjacent increments have their own denominators and do not assume linearity
+ok 73 - adjacent increments have their own denominators and do not assume linearity
+  ---
+  duration_ms: 1.601792
+  type: 'test'
+  ...
+# Subtest: all seven time variables can be examined as targets
+ok 74 - all seven time variables can be examined as targets
+  ---
+  duration_ms: 2.809917
+  type: 'test'
+  ...
+# Subtest: zero source, maximum valid single transfer, and oversized sweep amounts are handled
+ok 75 - zero source, maximum valid single transfer, and oversized sweep amounts are handled
+  ---
+  duration_ms: 0.20125
+  type: 'test'
+  ...
+# Subtest: invalid controls are rejected instead of producing Infinity or silent fallbacks
+ok 76 - invalid controls are rejected instead of producing Infinity or silent fallbacks
+  ---
+  duration_ms: 0.31825
+  type: 'test'
+  ...
+# Subtest: tiny steps remain finite at the zero-learning boundary
+ok 77 - tiny steps remain finite at the zero-learning boundary
+  ---
+  duration_ms: 1.638292
+  type: 'test'
+  ...
+# Subtest: finite-difference results are reproducible and contain no simulated statistical claims
+ok 78 - finite-difference results are reproducible and contain no simulated statistical claims
+  ---
+  duration_ms: 3.582042
+  type: 'test'
+  ...
+# Subtest: all fields validate and default plan is feasible for 12 weeks
+ok 79 - all fields validate and default plan is feasible for 12 weeks
+  ---
+  duration_ms: 1.915959
+  type: 'test'
+  ...
+# Subtest: time is a real 168-hour feasibility limit, not a penalty with impossible gains
+ok 80 - time is a real 168-hour feasibility limit, not a penalty with impossible gains
+  ---
+  duration_ms: 0.143292
+  type: 'test'
+  ...
+# Subtest: cash shortage stops rather than clipping or inventing debt
+ok 81 - cash shortage stops rather than clipping or inventing debt
+  ---
+  duration_ms: 0.09025
+  type: 'test'
+  ...
+# Subtest: buying an asset transfers cash and does not mint wealth
+ok 82 - buying an asset transfers cash and does not mint wealth
+  ---
+  duration_ms: 0.202458
+  type: 'test'
+  ...
+# Subtest: net worth identity holds across positive and negative returns and loan repayment
+ok 83 - net worth identity holds across positive and negative returns and loan repayment
+  ---
+  duration_ms: 0.968834
+  type: 'test'
+  ...
+# Subtest: asset risk grows with exposure and nonzero volatility is mandatory
+ok 84 - asset risk grows with exposure and nonzero volatility is mandatory
+  ---
+  duration_ms: 0.194583
+  type: 'test'
+  ...
+# Subtest: sales cannot exceed holdings and buy and sell cannot both be positive
+ok 85 - sales cannot exceed holdings and buy and sell cannot both be positive
+  ---
+  duration_ms: 0.089667
+  type: 'test'
+  ...
+# Subtest: paid-off debt does not create a future scheduled overpayment
+ok 86 - paid-off debt does not create a future scheduled overpayment
+  ---
+  duration_ms: 0.125625
+  type: 'test'
+  ...
+# Subtest: health affects effective work and learning output
+ok 87 - health affects effective work and learning output
+  ---
+  duration_ms: 0.095333
+  type: 'test'
+  ...
+# Subtest: financial returns do not automatically increase knowledge
+ok 88 - financial returns do not automatically increase knowledge
+  ---
+  duration_ms: 0.138875
+  type: 'test'
+  ...
+# Subtest: higher comparison pressure enters emotion load
+ok 89 - higher comparison pressure enters emotion load
+  ---
+  duration_ms: 0.070709
+  type: 'test'
+  ...
+# Subtest: cost and emotion overload share the same threshold
+ok 90 - cost and emotion overload share the same threshold
+  ---
+  duration_ms: 0.214291
+  type: 'test'
+  ...
+# Subtest: emotional money leakage is booked once, not a second cost line
+ok 91 - emotional money leakage is booked once, not a second cost line
+  ---
+  duration_ms: 0.086458
+  type: 'test'
+  ...
+# Subtest: agency and voluntary rest affect autonomy even when total hours are the same
+ok 92 - agency and voluntary rest affect autonomy even when total hours are the same
+  ---
+  duration_ms: 0.088625
+  type: 'test'
+  ...
+# Subtest: value mismatch changes desire cost independent of spending
+ok 93 - value mismatch changes desire cost independent of spending
+  ---
+  duration_ms: 0.06775
+  type: 'test'
+  ...
+# Subtest: weights and cost valuations do not change physical or financial state paths
+ok 94 - weights and cost valuations do not change physical or financial state paths
+  ---
+  duration_ms: 0.595375
+  type: 'test'
+  ...
+# Subtest: discounted objective includes all weeks
+ok 95 - discounted objective includes all weeks
+  ---
+  duration_ms: 0.077417
+  type: 'test'
+  ...
+# Subtest: weekly overrides are scoped to the specified week and retain the baseline
+ok 96 - weekly overrides are scoped to the specified week and retain the baseline
+  ---
+  duration_ms: 0.186333
+  type: 'test'
+  ...
+# Subtest: schedule validates merged plans, boundaries, unknown keys and types
+ok 97 - schedule validates merged plans, boundaries, unknown keys and types
+  ---
+  duration_ms: 0.466166
+  type: 'test'
+  ...
+# Subtest: a sale-only weekly override works when the base plan does not buy
+ok 98 - a sale-only weekly override works when the base plan does not buy
+  ---
+  duration_ms: 0.150959
+  type: 'test'
+  ...
+# Subtest: changing preferences or starting states is marked as non-equivalent comparison
+ok 99 - changing preferences or starting states is marked as non-equivalent comparison
+  ---
+  duration_ms: 0.69475
+  type: 'test'
+  ...
+# Subtest: random paths reproduce by seed and differ across seeds
+ok 100 - random paths reproduce by seed and differ across seeds
+  ---
+  duration_ms: 0.382
+  type: 'test'
+  ...
+# Subtest: market and health shocks are distinct
+ok 101 - market and health shocks are distinct
+  ---
+  duration_ms: 0.120917
+  type: 'test'
+  ...
+# Subtest: fatigue accumulates and recovery has a lag
+ok 102 - fatigue accumulates and recovery has a lag
+  ---
+  duration_ms: 0.089792
+  type: 'test'
+  ...
+# Subtest: knowledge gains diminish with accumulated knowledge
+ok 103 - knowledge gains diminish with accumulated knowledge
+  ---
+  duration_ms: 0.061125
+  type: 'test'
+  ...
+# Subtest: money is not capped at 100 and all display states are bounded
+ok 104 - money is not capped at 100 and all display states are bounded
+  ---
+  duration_ms: 0.950041
+  type: 'test'
+  ...
+# Subtest: ensemble reports failures instead of treating truncated paths as full results
+ok 105 - ensemble reports failures instead of treating truncated paths as full results
+  ---
+  duration_ms: 0.323
+  type: 'test'
+  ...
+# Subtest: ensemble intervals and sensitivity are reproducible
+ok 106 - ensemble intervals and sensitivity are reproducible
+  ---
+  duration_ms: 1.889542
+  type: 'test'
+  ...
+# Subtest: empty observation templates cannot pretend to calibrate
+ok 107 - empty observation templates cannot pretend to calibrate
+  ---
+  duration_ms: 0.25575
+  type: 'test'
+  ...
+# Subtest: synthetic-data calibration has chronological holdout and recovers grid parameters
+ok 108 - synthetic-data calibration has chronological holdout and recovers grid parameters
+  ---
+  duration_ms: 3.976417
+  type: 'test'
+  ...
+# Subtest: invalid data do not pass through direct model API
+ok 109 - invalid data do not pass through direct model API
+  ---
+  duration_ms: 0.2255
+  type: 'test'
+  ...
+# Subtest: offline core has identical ledger and preserves feasibility
+ok 110 - offline core has identical ledger and preserves feasibility
+  ---
+  duration_ms: 5.654833
+  type: 'test'
+  ...
+# Subtest: checked-in bundle is exactly reproducible
+ok 111 - checked-in bundle is exactly reproducible
+  ---
+  duration_ms: 5.741833
+  type: 'test'
+  ...
+# Subtest: offline marginal engine agrees with the source engine
+ok 112 - offline marginal engine agrees with the source engine
+  ---
+  duration_ms: 9.633208
+  type: 'test'
+  ...
+# Subtest: offline application starts, presets and financial failures update linked outputs
+ok 113 - offline application starts, presets and financial failures update linked outputs
+  ---
+  duration_ms: 194.934209
+  type: 'test'
+  ...
+# Subtest: marginal controls preserve invalid drafts and export/import complete personal data
+ok 114 - marginal controls preserve invalid drafts and export/import complete personal data
+  ---
+  duration_ms: 73.369916
+  type: 'test'
+  ...
+# Subtest: percentage changes use the original value, keep signs and reject zero or invalid denominators
+ok 115 - percentage changes use the original value, keep signs and reject zero or invalid denominators
+  ---
+  duration_ms: 0.46425
+  type: 'test'
+  ...
+# Subtest: fatigue burden sums closing states only and average uses the actual horizon
+ok 116 - fatigue burden sums closing states only and average uses the actual horizon
+  ---
+  duration_ms: 5.356583
+  type: 'test'
+  ...
+# Subtest: default sleep reproduction exposes the 56 and 63 hour caps without changing the model
+ok 117 - default sleep reproduction exposes the 56 and 63 hour caps without changing the model
+  ---
+  duration_ms: 3.666375
+  type: 'test'
+  ...
+# Subtest: comparison shows signed percentages, time shares and full-period fatigue without clearing notes
+ok 118 - comparison shows signed percentages, time shares and full-period fatigue without clearing notes
+  ---
+  duration_ms: 292.601958
+  type: 'test'
+  ...
+# Subtest: zero learning baseline displays no invented percentage and repairs to a valid percentage
+ok 119 - zero learning baseline displays no invented percentage and repairs to a valid percentage
+  ---
+  duration_ms: 75.923875
+  type: 'test'
+  ...
+# Subtest: selecting each goal plan enables saving; cancellation and invalidation disable it again
+ok 120 - selecting each goal plan enables saving; cancellation and invalidation disable it again
+  ---
+  duration_ms: 238.508042
+  type: 'test'
+  ...
+# Subtest: personal and advanced controls share values and parameter changes recalculate the selected trial
+ok 121 - personal and advanced controls share values and parameter changes recalculate the selected trial
+  ---
+  duration_ms: 85.4655
+  type: 'test'
+  ...
+# Subtest: all goals, amounts, periods and scheduled weeks compare with the same marginal engine
+ok 122 - all goals, amounts, periods and scheduled weeks compare with the same marginal engine
+  ---
+  duration_ms: 424.700333
+  type: 'test'
+  ...
+# Subtest: period and schedule changes update comparisons and first-week trial plans immediately
+ok 123 - period and schedule changes update comparisons and first-week trial plans immediately
+  ---
+  duration_ms: 43.525875
+  type: 'test'
+  ...
+# Subtest: infeasible selected plans are removed and old drafts are restored when inputs recover
+ok 124 - infeasible selected plans are removed and old drafts are restored when inputs recover
+  ---
+  duration_ms: 51.231833
+  type: 'test'
+  ...
+# Subtest: invalid numeric input clears stale decisions but remains editable and exportable across refresh
+ok 125 - invalid numeric input clears stale decisions but remains editable and exportable across refresh
+  ---
+  duration_ms: 68.96825
+  type: 'test'
+  ...
+# Subtest: all three goals retain separate notes, selected sources, steps and demo settings on refresh
+ok 126 - all three goals retain separate notes, selected sources, steps and demo settings on refresh
+  ---
+  duration_ms: 129.785333
+  type: 'test'
+  ...
+# Subtest: complete export carries drafts and notes and imports atomically without mixing old state
+ok 127 - complete export carries drafts and notes and imports atomically without mixing old state
+  ---
+  duration_ms: 90.601584
+  type: 'test'
+  ...
+# Subtest: 0.3 experiments and v1/v2 trial records migrate without overwriting legacy saves
+ok 128 - 0.3 experiments and v1/v2 trial records migrate without overwriting legacy saves
+  ---
+  duration_ms: 64.794084
+  type: 'test'
+  ...
+# Subtest: corrupt stored data is not automatically overwritten and storage denial does not crash calculations
+ok 129 - corrupt stored data is not automatically overwritten and storage denial does not crash calculations
+  ---
+  duration_ms: 82.354208
+  type: 'test'
+  ...
+# Subtest: malformed workspace progress, notes, input fields and demo configuration are rejected
+ok 130 - malformed workspace progress, notes, input fields and demo configuration are rejected
+  ---
+  duration_ms: 27.569667
+  type: 'test'
+  ...
+# Subtest: cancelled trial does not reselect itself on parameter change
+ok 131 - cancelled trial does not reselect itself on parameter change
+  ---
+  duration_ms: 51.653625
+  type: 'test'
+  ...
+# Subtest: failed schedule application remains a blocked editable draft after reload
+ok 132 - failed schedule application remains a blocked editable draft after reload
+  ---
+  duration_ms: 67.602417
+  type: 'test'
+  ...
+1..132
+# tests 132
+# suites 0
+# pass 132
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1790.817667
