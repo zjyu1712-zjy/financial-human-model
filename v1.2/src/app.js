@@ -10,6 +10,9 @@ import { SLEEP_CASES, sleepDemo } from './sleep-comparison.js';
 import { newDiary } from './sleep-diary.js';
 import { mountSleepDiary } from './sleep-diary-ui.js';
 import { PLAIN_FIELDS, PLAIN_GROUPS } from './copy.js';
+import { newSources, reconcileSources } from './records.js';
+import { newRecordDrafts } from './record-drafts.js';
+import { mountRecords } from './records-ui.js';
 
 const $=q=>document.querySelector(q);
 const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -26,6 +29,7 @@ const guideNotes=new Map();
 const guideSelections=new Map();
 let guideStep=1,guideReached=1;
 let guideLimits=clone(DEFAULT_LIMITS),guideView=clone(DEFAULT_COMPARE_VIEW);
+let inputSources=newSources(current),trialArchive=[],recordDrafts=newRecordDrafts(),recordsUI=null;
 const limitDrafts=new Map();
 const timeLabels=Object.fromEntries(PLAN_GROUPS[0].fields.map(f=>[f.key,PLAIN_FIELDS[f.key]||f.label]));
 const signed=(v,d=2)=>Number.isFinite(v)?`${v>0?'+':''}${number(v,d)}`:'不计算';
@@ -53,6 +57,10 @@ function field(f,group,prefix=''){const id=`${prefix}${group}-${f.key}`,label=gr
 function table(headers,rows){return `<table><thead><tr>${headers.map(h=>`<th>${escapeHTML(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(v=>`<td>${escapeHTML(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;}
 function announce(text){$('#operation').textContent=text;}
 function setError(text){$('#error').hidden=!text;$('#error').textContent=text;}
+recordsUI=mountRecords({getState:()=>({current,schedule,weeks,config:guideConfig,limits:guideLimits,choiceId:guideChoice,inputSources,trialArchive,recordDrafts,note:$('#guide-note').value,blocked:drafts.size>0||limitDrafts.size>0}),
+  onSources:value=>{inputSources=value;return persistWorkspace();},
+  onArchive:value=>{trialArchive=value;return persistWorkspace();},
+  onDrafts:value=>{recordDrafts=value;return persistWorkspace();}});
 sleepDiaryUI=mountSleepDiary({getCurrent:()=>current,getDiary:()=>sleepDiary,setDiary:value=>{sleepDiary=value;persistWorkspace();},blocked:()=>drafts.size>0||limitDrafts.size>0,
   apply:next=>{rememberGuideNote();const rawSchedule=$('#schedule').value;current=next;renderControls();$('#schedule').value=rawSchedule;renderResults();persistWorkspace();}});
 function refreshDrafts(){
@@ -86,6 +94,7 @@ function renderControls(){
 }
 function card(label,value,reference,unit){const difference=Number.isFinite(value)&&Number.isFinite(reference)?value-reference:null;return `<article class="metric"><span class="label">${label}</span><strong>${number(value)} <small>${unit}</small></strong><small>对照安排 ${number(reference)} · 相差 ${delta(difference)}</small></article>`;}
 function renderResults(){
+  inputSources=reconcileSources(inputSources,current);
   comparison=comparePlans(current,baseline,weeks,schedule,baselineSchedule);
   const {current:a,baseline:b}=comparison;
   const av=a.feasible?a.final:null,bv=b.feasible?b.final:null;
@@ -384,6 +393,7 @@ function renderGuide(){
 }
 function renderGuideTrial(){
   const row=guideResult?.available.find(r=>r.id===guideChoice);
+  recordsUI?.render();
   $('#guide-save').disabled=!row;
   $('#guide-trial').hidden=!row;$('#guide-trial-placeholder').hidden=!!row;
   if(!row){$('#guide-trial-plan').innerHTML='';return;}
@@ -454,7 +464,7 @@ $('#guide-load').onclick=()=>{
   try{
     const raw=localStorage.getItem(TRIAL_KEY)??localStorage.getItem('financial-human-weekly-trial-v4')??localStorage.getItem('financial-human-weekly-trial-v3')??localStorage.getItem('financial-human-weekly-trial-v2')??localStorage.getItem('financial-human-weekly-trial-v1');if(!raw)throw new Error('本机还没有保存过试行计划。');
     const r=decodeGuideTrial(JSON.parse(raw));
-    rememberGuideNote();current=r.scenario;schedule=r.schedule;weeks=r.weeks;guideConfig=r.config;guideChoice=r.choiceId;guideStep=5;guideReached=5;
+    rememberGuideNote();current=r.scenario;inputSources=newSources(current,'unknown');schedule=r.schedule;weeks=r.weeks;guideConfig=r.config;guideChoice=r.choiceId;guideStep=5;guideReached=5;
     guideLimits=r.limits;limitDrafts.clear();
     guideNotes.set(guideNoteKey(),r.note);guideSelections.set(guideContextKey(),guideChoice);$('#guide-note').value=r.note;
     drafts.clear();fieldDrafts.clear();$('#weeks').value=weeks;renderControls();refreshDrafts();renderResults();renderGuideSteps(true);$('#guide-message').textContent=`已读取${r.legacy?'旧版学习':'上次'}试行计划，输入与参数已恢复。`;
@@ -545,18 +555,19 @@ function snapshot(){return {format:'financial-human-experiment-v1.2',version:VER
   marginalConfig:{...marginalConfig,week:marginalConfig.frequency==='once'?Math.min(weeks,marginalConfig.week):marginalConfig.week}};}
 function workspaceSnapshot(){
   rememberGuideNote();
-  return {format:WORKSPACE_FORMAT,experiment:snapshot(),sleepDiary,decision:{config:guideConfig,choiceId:guideChoice,step:guideStep,reached:guideReached,
+  return {format:WORKSPACE_FORMAT,experiment:snapshot(),sleepDiary,inputSources,trialArchive,recordDrafts,decision:{config:guideConfig,choiceId:guideChoice,step:guideStep,reached:guideReached,
     notes:[...guideNotes],selections:[...guideSelections],limits:guideLimits,limitDrafts:[...limitDrafts],view:guideView},demo:{goal:demoGoal,amounts:{...demoAmounts},sleepDemo:sleepDemoCase,sleepSource:sleepDemoSource},fieldDrafts:[...fieldDrafts],
     scheduleText:$('#schedule').value,scheduleError:drafts.get('schedule')||'',marginalDraft:Object.fromEntries(Object.keys(DEFAULT_MARGINAL).map(k=>[k,$('#marginal-'+k).value]))};
 }
 function persistWorkspace(force=false){
-  if(!ready||restoring)return;
-  if(storageBlocked&&!force)return;
+  if(!ready||restoring)return false;
+  if(storageBlocked&&!force)return false;
   try{
     const value=workspaceSnapshot();decodeWorkspace(value);
     localStorage.setItem(WORKSPACE_KEY,JSON.stringify(value));storageBlocked=false;
     $('#workspace-status').textContent='已自动保存到本机';
-  }catch(e){$('#workspace-status').textContent='未保存到本机，请导出数据保留。';}
+    return true;
+  }catch(e){$('#workspace-status').textContent='未保存到本机，请导出数据保留。';return false;}
 }
 function acceptSnapshot(s){
   const full=[WORKSPACE_FORMAT,'financial-human-workspace-v1.1','financial-human-workspace-v1'].includes(s?.format)?decodeWorkspace(s):null,e=full?.experiment??decodeExperiment(s);
@@ -564,6 +575,7 @@ function acceptSnapshot(s){
   rememberGuideNote();restoring=true;
   try{
     current=e.current;baseline=e.baseline;schedule=e.schedule;baselineSchedule=e.baselineSchedule;weeks=e.weeks;marginalConfig=e.marginalConfig;
+    inputSources=full?.inputSources??newSources(current,'unknown');trialArchive=full?.trialArchive??[];recordDrafts=full?.recordDrafts??newRecordDrafts();
     if(full){
       sleepDiary=full.sleepDiary;
       const d=full.decision;guideConfig=d.config;guideChoice=d.choiceId;guideStep=d.step;guideReached=d.reached;
@@ -583,7 +595,7 @@ function acceptSnapshot(s){
       for(const key of Object.keys(DEFAULT_MARGINAL))$('#marginal-'+key).value=full.marginalDraft[key];
       updateMarginal();
     }
-    refreshDrafts();renderResults();renderDemo();renderSleepDemo();renderGuideSteps();
+    recordsUI?.restoreDrafts();refreshDrafts();renderResults();renderDemo();renderSleepDemo();renderGuideSteps();
   }finally{restoring=false;}
   storageBlocked=false;persistWorkspace();
 }
@@ -611,8 +623,8 @@ document.addEventListener('input',e=>{
 });
 $('#schedule-apply').onclick=()=>{try{const value=JSON.parse($('#schedule').value);const errors=validateSchedule(value);if(errors.length)throw new Error(errors.join('；'));simulate(current,weeks,{schedule:value});schedule=value;drafts.delete('schedule');refreshDrafts();$('#schedule-note').textContent=`${Object.keys(schedule).length} 周有单独安排`;renderResults();announce('逐周安排已更新。');}catch(e){drafts.set('schedule',e.message);refreshDrafts();syncLinkedGuide();persistWorkspace();}};
 $('#pin').onclick=()=>{baseline=clone(current);baselineSchedule=clone(schedule);renderResults();announce('已固定当前输入、参数与逐周安排作为基准。');};
-$('#restore').onclick=()=>{current=clone(baseline);schedule=clone(baselineSchedule);resetDrafts();announce('已恢复保存的对照安排。');};
-$('#reset').onclick=()=>{current=clone(DEFAULT_SCENARIO);schedule={};resetDrafts();announce('实验组恢复默认，基准未变。');};
+$('#restore').onclick=()=>{current=clone(baseline);inputSources=newSources(current,'unknown');schedule=clone(baselineSchedule);resetDrafts();announce('已恢复保存的对照安排，请核对输入来源。');};
+$('#reset').onclick=()=>{current=clone(DEFAULT_SCENARIO);inputSources=newSources(current);schedule={};resetDrafts();announce('实验组恢复默认，基准与试行档案未变。');};
 $('#weeks').onchange=()=>{weeks=Number($('#weeks').value);updateMarginal();renderResults();};
 $('#guide-weeks').onchange=()=>{$('#weeks').value=$('#guide-weeks').value;$('#weeks').onchange();};
 $('#question').onchange=renderResults;$('#chart-metric').onchange=drawChart;
@@ -645,7 +657,7 @@ $('#observations').onchange=async e=>{try{const file=e.target.files[0];if(!file)
   ['前段试算 / 后段核对',`${fit.trainCount} / ${fit.testCount}`],['疲劳恢复率',fit.parameters.fatigueRecovery],['学习增益系数',fit.parameters.learningGain],['后段预测误差：原设置 → 新设置',`${number(fit.holdoutBefore,3)} → ${number(fit.holdoutAfter,3)}`],['判读',fit.improved?'后段预测更贴近记录':'后段预测没有变准，保留原设置']]);$('#adopt-fit').hidden=!fit.improved;}catch(error){fit=null;$('#adopt-fit').hidden=true;$('#calibration-result').textContent=error.message;}};
 $('#adopt-fit').onclick=()=>{if(!fit?.improved)return;current.parameters={...current.parameters,...fit.parameters};resetDrafts();announce('已采用两个试拟合参数；保存的对照安排未变。');};
 $('#export').onclick=()=>download('financial-human-1.2.json',{...workspaceSnapshot(),results:drafts.size?null:comparison,marginalResults:marginalResult,exportedAt:new Date().toISOString()});
-$('#import').onchange=async e=>{try{const file=e.target.files[0];if(!file)return;if(file.size>5000000)throw new Error('文件超过 5 MB');const value=JSON.parse(await file.text()),old=(value.experiment?.current??value.current)?.version!==VERSION;acceptSnapshot(value);announce(old?'旧数据已导入。原来的输入保留，缺少的设置使用默认值；请核对后继续。':'数据和对照安排已导入。');}catch(error){setError(error.message);}};
+$('#import').onchange=async e=>{try{const file=e.target.files[0];if(!file)return;if(file.size>64000000)throw new Error('文件超过 64 MB');const value=JSON.parse(await file.text()),old=(value.experiment?.current??value.current)?.version!==VERSION;acceptSnapshot(value);const message=old?'旧数据已导入。原来的输入保留，缺少的设置使用默认值；请核对后继续。':'数据和对照安排已导入。';announce(message);$('#file-message').textContent=message;}catch(error){setError(error.message);$('#file-message').textContent=`导入未完成：${error.message}。当前工作区保持不变。`;}};
 $('#save').onclick=()=>{persistWorkspace(true);announce($('#workspace-status').textContent);};
 $('#load').onclick=()=>{try{const value=localStorage.getItem(WORKSPACE_KEY)??localStorage.getItem('financial-human-v0.3');if(!value)throw new Error('没有本机保存的数据');acceptSnapshot(JSON.parse(value));announce('已读取本机数据。');}catch(e){setError(e.message);}};
 $('#dictionary').innerHTML=table(['层级','代码变量','名称与单位','定义 / 测量边界'],[

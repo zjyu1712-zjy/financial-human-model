@@ -1234,6 +1234,517 @@ function decodeGuideTrial(record){
 
 return {DEFAULT_GUIDE,GUIDE_AMOUNT,isGuideAmount,GUIDE_STEPS,GUIDE_GOALS,GUIDE_OPTIONS,normalizeGuideConfig,validateGuide,buildDecisionGuide,decodeGuideTrial};
 })();
+__modules["records"]=(()=>{
+const {VERSION, STATE_GROUPS, PLAN_GROUPS, PARAM_FIELDS, clone }=__modules["schema"];
+const {PLAIN_FIELDS }=__modules["copy"];
+const {dayNumber }=__modules["sleep-diary"];
+const {DEFAULT_GUIDE, buildDecisionGuide }=__modules["guide"];
+const {DEFAULT_LIMITS }=__modules["comparison"];
+
+const TRIAL_FORMAT='financial-human-decision-record-v1';
+const TRIAL_LIMIT=100;
+const REVIEW_LIMIT=20;
+const SOURCE_NOTE_LIMIT=160;
+const RECORD_TEXT_LIMITS=Object.freeze({intent:300,stopRule:200,note:2000,execution:500,outcome:500,reason:500,nextStep:500});
+const SOURCE_LABELS=Object.freeze({default:'默认假设',estimate:'个人估计',record:'来自记录',unknown:'来源未知'});
+
+function freezeTree(value){
+  if(value&&typeof value==='object'&&!Object.isFrozen(value)){
+    for(const child of Object.values(value))freezeTree(child);
+    Object.freeze(value);
+  }
+  return value;
+}
+const fields={plan:PLAN_GROUPS.flatMap(g=>g.fields),state:STATE_GROUPS.flatMap(g=>g.fields),parameters:PARAM_FIELDS};
+const sourceField=(group,key)=>{
+  const f=fields[group].find(f=>f.key===key);
+  return {id:`${group}.${key}`,group,key,label:PLAIN_FIELDS[key]??f.label,unit:f.unit};
+};
+const SOURCE_FIELDS=freezeTree([
+  ...['work','learn','sleep','leisure'].map(key=>sourceField('plan',key)),
+  ...['cash','fatigue'].map(key=>sourceField('state',key)),
+  ...['wage','essential'].map(key=>sourceField('plan',key)),
+  ...['sleepNeed','fatigueRecovery'].map(key=>sourceField('parameters',key)),
+  ...['sleepDebt','sleepQuality'].map(key=>sourceField('state',key))
+]);
+const sourceIds=SOURCE_FIELDS.map(f=>f.id);
+const object=value=>value!==null&&typeof value==='object'&&Object.prototype.toString.call(value)==='[object Object]';
+const shape=(value,keys)=>object(value)&&Object.keys(value).length===keys.length&&keys.every(key=>Object.hasOwn(value,key));
+const rawSource=(kind,value)=>({kind,date:'',note:'',value});
+const hasKind=kind=>typeof kind==='string'&&Object.hasOwn(SOURCE_LABELS,kind);
+
+function readDate(value,label){
+  try{
+    dayNumber(value);
+    if(value.startsWith('0000'))throw new Error();
+  }catch{throw new Error(`${label}须为有效日期（YYYY-MM-DD）`);}
+  return value;
+}
+function localDate(date=new Date()){
+  const pad=(n,size)=>String(n).padStart(size,'0');
+  return readDate(`${pad(date.getFullYear(),4)}-${pad(date.getMonth()+1,2)}-${pad(date.getDate(),2)}`,'本地日期');
+}
+function sourceValue(scenario,{group,key,label}){
+  const value=scenario?.[group]?.[key];
+  if(!Number.isFinite(value))throw new Error(`${label}数值无效`);
+  return value;
+}
+function readSource(input,value,label){
+  if(!shape(input,['kind','date','note','value'])||!hasKind(input.kind))throw new Error(`${label}来源格式无效`);
+  if(input.value!==value)throw new Error(`${label}来源与当前数值不一致`);
+  if(input.date!=='')readDate(input.date,`${label}来源日期`);
+  if(typeof input.note!=='string'||input.note.length>SOURCE_NOTE_LIMIT)throw new Error(`${label}来源备注最多 ${SOURCE_NOTE_LIMIT} 字`);
+  return {kind:input.kind,date:input.date,note:input.note,value};
+}
+const sourceMap=read=>freezeTree(Object.fromEntries(SOURCE_FIELDS.map(f=>[f.id,read(f)])));
+function newSources(scenario,kind='default'){
+  if(!hasKind(kind))throw new Error('来源类别无效');
+  return sourceMap(f=>rawSource(kind,sourceValue(scenario,f)));
+}
+function decodeSources(value,scenario){
+  if(value===undefined)return newSources(scenario,'unknown');
+  if(!shape(value,sourceIds))throw new Error('输入来源格式不完整');
+  return sourceMap(f=>readSource(value[f.id],sourceValue(scenario,f),f.label));
+}
+function reconcileSources(sources,scenario){
+  return sourceMap(f=>{
+    const value=sourceValue(scenario,f),entry=sources?.[f.id];
+    return entry?.value===value?readSource(entry,value,f.label):rawSource('unknown',value);
+  });
+}
+function setSource(sources,id,{kind,date='',note=''}={},scenario){
+  const field=SOURCE_FIELDS.find(f=>f.id===id);
+  if(!field)throw new Error('未知的输入来源字段');
+  const value=sourceValue(scenario,field);
+  return freezeTree({...reconcileSources(sources,scenario),[id]:readSource({kind,date,note,value},value,field.label)});
+}
+
+const trialKeys=['id','createdAt','startDate','reviewDate','intent','stopRule','note'];
+const recordKeys=['format','modelVersion','snapshot','summary','reviews',...trialKeys];
+const snapshotKeys=['scenario','schedule','weeks','config','limits','choiceId','sources'];
+const reviewFields=['execution','outcome','reason','nextStep'];
+const metrics=['cash','income','fatigue','sleepDebt','knowledge','effectiveLearn'];
+const emptyArchive=Object.freeze([]);
+// Workspace auto-save revalidates on each edit; a frozen record never needs a second simulation.
+const validatedRecords=new WeakSet();
+function lockRecord(record){freezeTree(record);validatedRecords.add(record);return record;}
+
+function readId(value){
+  if(typeof value!=='string'||!/^[A-Za-z0-9_-]{1,80}$/.test(value))throw new Error('记录编号无效');
+  return value;
+}
+function readTimestamp(value){
+  if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/.test(value))throw new Error('保存时间无效');
+  readDate(value.slice(0,10),'保存日期');
+  const date=new Date(value),canonical=value.length===20?value.replace('Z','.000Z'):value;
+  if(!Number.isFinite(date.getTime())||date.toISOString()!==canonical)throw new Error('保存时间无效');
+  return value;
+}
+function readText(key,value,required=false){
+  const label={intent:'试行目标',stopRule:'停止条件',note:'试行备注',execution:'实际执行',outcome:'实际结果',reason:'偏差原因',nextStep:'下一步'}[key];
+  const limit=RECORD_TEXT_LIMITS[key];
+  if(typeof value!=='string'||value.length>limit)throw new Error(`${label}最多 ${limit} 字`);
+  if(required&&!value.trim())throw new Error(`请填写${label}`);
+  return value;
+}
+function readTrialFields({id,createdAt,startDate,reviewDate,intent,stopRule,note}){
+  readDate(startDate,'开始日期');readDate(reviewDate,'计划回看日期');
+  if(reviewDate<startDate)throw new Error('计划回看日期不能早于开始日期');
+  return {id:readId(id),createdAt:readTimestamp(createdAt),startDate,reviewDate,
+    intent:readText('intent',intent,true),stopRule:readText('stopRule',stopRule,true),note:readText('note',note)};
+}
+function readReview(input,startDate){
+  if(!shape(input,['id','date',...reviewFields]))throw new Error('复盘记录格式不完整');
+  const id=readId(input.id),date=readDate(input.date,'复盘日期');
+  if(date<startDate)throw new Error('复盘日期不能早于试行开始日期');
+  const entries=reviewFields.map(key=>[key,readText(key,input[key])]);
+  if(!entries.some(([,value])=>value.trim()))throw new Error('请至少填写一项复盘内容');
+  return {id,date,...Object.fromEntries(entries)};
+}
+function makeSnapshot({scenario,schedule,weeks,config,limits,choiceId,sources}){
+  if(!shape(scenario,['version','state','plan','parameters','weights'])||
+    !object(schedule)||Object.values(schedule).some(p=>!object(p))||
+    !shape(config,Object.keys(DEFAULT_GUIDE))||!shape(limits,Object.keys(DEFAULT_LIMITS))||sources===undefined)
+    throw new Error('试行快照格式不完整');
+  if(weeks===undefined)throw new Error('试行比较周期缺失');
+  const recordedSources=decodeSources(sources,scenario);
+  const guide=buildDecisionGuide(scenario,config,{schedule,weeks,limits});
+  const row=guide.available.find(r=>r.id===choiceId);
+  if(!row)throw new Error('所选试行方案已不满足当前目标或底线');
+  const outcome=(values,path)=>({...Object.fromEntries(metrics.map(key=>[key,values[key]])),averageFatigue:path.averageFatigue});
+  const snapshot={scenario:guide.scenario,schedule:guide.schedule,weeks:guide.weeks,config:guide.config,limits:guide.limits,choiceId,sources:recordedSources};
+  const summary={label:row.label,source:row.source,target:row.target,baselinePlan:{...scenario.plan,...schedule[1]},chosenPlan:row.plan,
+    totalHours:guide.totalHours,baseline:outcome(row.baseline,guide.baselinePath),chosen:outcome(row.point.metrics,row.path),margins:row.margins};
+  return {snapshot,summary};
+}
+function createTrial(input){
+  const {note=''}=input;
+  const fields=readTrialFields({...input,note});
+  const {snapshot,summary}=makeSnapshot(input);
+  return lockRecord({format:TRIAL_FORMAT,modelVersion:VERSION,...fields,snapshot,summary,reviews:[]});
+}
+
+function matchesSummary(value,expected){
+  // Separate JS engines can round transcendental calculations differently; allow only numerical noise.
+  if(typeof expected==='number')return Number.isFinite(value)&&Math.abs(value-expected)<=1e-9+32*Number.EPSILON*Math.abs(expected);
+  if(Array.isArray(expected))return Array.isArray(value)&&value.length===expected.length&&expected.every((item,i)=>matchesSummary(value[i],item));
+  if(object(expected))return shape(value,Object.keys(expected))&&Object.entries(expected).every(([key,item])=>matchesSummary(value[key],item));
+  return value===expected;
+}
+function uniqueIds(records){
+  const ids=Array.from(records,r=>readId(r?.id));
+  if(new Set(ids).size!==ids.length)throw new Error('记录编号重复');
+}
+function decodeRecord(record){
+  if(validatedRecords.has(record))return record;
+  if(!shape(record,recordKeys)||record.format!==TRIAL_FORMAT||record.modelVersion!==VERSION||!shape(record.snapshot,snapshotKeys))
+    throw new Error('试行记录格式或模型版本不支持');
+  const fields=readTrialFields(record);
+  if(!Array.isArray(record.reviews))throw new Error('复盘列表格式无效');
+  if(record.reviews.length>REVIEW_LIMIT)throw new Error(`每次试行最多保存 ${REVIEW_LIMIT} 次复盘`);
+  uniqueIds(record.reviews);
+  const reviews=record.reviews.map(value=>readReview(value,fields.startDate));
+  const {snapshot,summary}=makeSnapshot(record.snapshot);
+  if(!matchesSummary(record.summary,summary))throw new Error('保存的预期结果与试行快照不一致');
+  return lockRecord({format:TRIAL_FORMAT,modelVersion:VERSION,...fields,snapshot,summary:clone(record.summary),reviews});
+}
+function checkArchive(value){
+  if(!Array.isArray(value))throw new Error('试行档案格式无效');
+  if(value.length>TRIAL_LIMIT)throw new Error(`最多保存 ${TRIAL_LIMIT} 次试行，请先导出备份并删除不再需要的记录`);
+}
+function decodeArchive(value){
+  if(value===undefined)return emptyArchive;
+  checkArchive(value);uniqueIds(value);
+  return Object.freeze(value.map(decodeRecord));
+}
+function appendTrial(archive,record){
+  checkArchive(archive);
+  if(archive.length>=TRIAL_LIMIT)throw new Error(`已保存 ${TRIAL_LIMIT} 次试行，请先导出备份并删除不再需要的记录`);
+  const current=decodeArchive(archive),next=decodeRecord(record);
+  if(current.some(r=>r.id===next.id))throw new Error('试行编号重复');
+  return Object.freeze([...current,next]);
+}
+function appendReview(archive,id,input){
+  const current=decodeArchive(archive),record=current.find(r=>r.id===id);
+  if(!record)throw new Error('未找到这次试行');
+  if(record.reviews.length>=REVIEW_LIMIT)throw new Error(`每次试行最多保存 ${REVIEW_LIMIT} 次复盘`);
+  const review=readReview(input,record.startDate);
+  if(record.reviews.some(r=>r.id===review.id))throw new Error('复盘编号重复');
+  const next=lockRecord({...record,reviews:[...record.reviews,review]});
+  return Object.freeze(current.map(r=>r===record?next:r));
+}
+function deleteTrial(archive,id){
+  const current=decodeArchive(archive);
+  if(!current.some(r=>r.id===id))throw new Error('未找到这次试行');
+  return Object.freeze(current.filter(r=>r.id!==id));
+}
+
+return {TRIAL_FORMAT,TRIAL_LIMIT,REVIEW_LIMIT,SOURCE_NOTE_LIMIT,RECORD_TEXT_LIMITS,SOURCE_LABELS,SOURCE_FIELDS,localDate,newSources,decodeSources,reconcileSources,setSource,createTrial,decodeArchive,appendTrial,appendReview,deleteTrial};
+})();
+__modules["record-drafts"]=(()=>{
+const {clone }=__modules["schema"];
+const {localDate }=__modules["records"];
+
+function newRecordDrafts(){
+  const today=new Date(),later=new Date(today);later.setDate(later.getDate()+7);
+  return {trial:{startDate:localDate(today),reviewDate:localDate(later),intent:'',stopRule:''},selectedId:'',reviews:[]};
+}
+function decodeRecordDrafts(value){
+  if(value===undefined)return newRecordDrafts();
+  if(!value||typeof value!=='object'||Array.isArray(value))throw new Error('试行草稿格式无效');
+  const check=(object,fields)=>{
+    if(!object||typeof object!=='object'||Array.isArray(object)||Object.keys(object).some(k=>!Object.hasOwn(fields,k)))throw new Error('试行草稿字段无效');
+    for(const [key,max] of Object.entries(fields))if(typeof object[key]!=='string'||object[key].length>max)throw new Error('试行草稿内容过长或缺失');
+  };
+  check(value.trial,{startDate:10,reviewDate:10,intent:300,stopRule:200});
+  if(typeof value.selectedId!=='string'||value.selectedId.length>80||!Array.isArray(value.reviews)||value.reviews.length>100)throw new Error('复盘草稿格式无效');
+  const seen=new Set();
+  for(const r of value.reviews){check(r,{trialId:80,date:10,execution:500,outcome:500,reason:500,nextStep:500});if(seen.has(r.trialId))throw new Error('复盘草稿重复');seen.add(r.trialId);}
+  return clone(value);
+}
+
+return {newRecordDrafts,decodeRecordDrafts};
+})();
+__modules["decision-report"]=(()=>{
+const {LIMIT_FIELDS }=__modules["comparison"];
+const {PLAIN_FIELDS }=__modules["copy"];
+const {GUIDE_GOALS }=__modules["guide"];
+const {SOURCE_FIELDS, SOURCE_LABELS }=__modules["records"];
+
+const METRICS=[
+  ['knowledge','期末知识','分'],
+  ['effectiveLearn','累计有效学习','折算小时'],
+  ['income','累计工作收入','元'],
+  ['cash','期末现金','元'],
+  ['fatigue','期末疲劳','分',-1],
+  ['averageFatigue','平均疲劳','分',-1],
+  ['sleepDebt','期末睡眠债','小时',-1]
+];
+const escapeHTML=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const scalar=new Intl.NumberFormat('zh-CN',{maximumFractionDigits:20});
+const decimal=new Intl.NumberFormat('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const time=(date,label=date)=>`<time datetime="${escapeHTML(date)}">${escapeHTML(label)}</time>`;
+const timeLabel=key=>key==='unallocated'?'空余时间':PLAIN_FIELDS[key];
+
+function excerpt(text,limit){
+  const chars=Array.from(text.trim().replace(/\s+/gu,' '));
+  return escapeHTML(chars.length>limit?chars.slice(0,limit).join('')+'…':chars.join(''));
+}
+
+function metricRows(summary){
+  return METRICS.map(([key,label,unit,direction=1])=>{
+    const before=summary.baseline[key],after=summary.chosen[key],delta=after-before;
+    const change=Math.abs(delta)<1e-9?0:delta;
+    const effect=change===0?'':change*direction>0?'report-favorable':'report-unfavorable';
+    const amount=change===0?'0.00':Math.abs(change)<.01?`${change>0?'增加':'减少'} &lt;0.01`:`${change>0?'+':'−'}${decimal.format(Math.abs(change))}`;
+    return `<tr><th scope="row">${label} <small>（${unit}）</small></th><td>${decimal.format(before)}</td><td>${decimal.format(after)}</td><td class="${effect}">${amount}</td></tr>`;
+  }).join('\n');
+}
+
+function limitRows(limits,margins,weeks){
+  return Object.entries(LIMIT_FIELDS).map(([key,{label,unit}])=>{
+    const margin=margins.find(m=>m.key===key);
+    const heading=key==='maxIncomeLoss'?`${label}（${weeks} 周累计）`:label;
+    const detail=margin?`<small>${margin.week===0?'起点':`第 ${scalar.format(margin.week)} 周`} · ${margin.ok?'余量':'差额'} ${decimal.format(Math.abs(margin.margin))} ${unit}</small>`:'';
+    return `<div><dt>${heading}</dt><dd>${limits[key]===null?'未设置':`${scalar.format(limits[key])} ${unit}`}${detail}</dd></div>`;
+  }).join('\n');
+}
+
+function sourceRows(sources){
+  return SOURCE_FIELDS.map(field=>{
+    const source=sources[field.id];
+    const context=[SOURCE_LABELS[source.kind],source.date?time(source.date):'',source.note?excerpt(source.note,18):''].filter(Boolean);
+    return `<div><dt>${escapeHTML(field.label)}</dt><dd class="report-source-value">${scalar.format(source.value)} ${escapeHTML(field.unit)}</dd><dd class="report-source-context">${context.join(' · ')}</dd></div>`;
+  }).join('\n');
+}
+
+// This view never uses the working scenario or runs the model again.
+function renderDecisionReport(record){
+  const {snapshot,summary,reviews}=record;
+  const {config,weeks,limits,sources}=snapshot;
+  const duration=scalar.format(weeks);
+  const goal=GUIDE_GOALS[config.goal].label;
+  const protectedTimes=[['protectSleep','睡眠'],['protectWork','工作'],['protectLearn','学习']].filter(([key])=>config[key]).map(([,label])=>label);
+  const planChange=[summary.source,summary.target].map(key=>{
+    const label=escapeHTML(timeLabel(key));
+    if(key==='unallocated')return `${label}减少 ${scalar.format(config.amount)} 小时`;
+    return `${label} ${scalar.format(summary.baselinePlan[key])} → ${scalar.format(summary.chosenPlan[key])} 小时`;
+  }).join('；');
+  const latest=reviews.reduce((current,review)=>!current||review.date>=current.date?review:current,null);
+  const prose=(label,value,limit)=>`<div><dt>${label}</dt><dd>${excerpt(value,limit)||'未填写'}</dd></div>`;
+  const created=record.createdAt.slice(0,16).replace('T',' ')+' UTC';
+  return `<article class="decision-report">
+<header class="report-header">
+  <p class="report-kicker">试行档案</p>
+  <h1>单页决策报告</h1>
+  <p class="report-meta">归档 ${time(record.createdAt,created)} · 模型 ${escapeHTML(record.modelVersion)}</p>
+</header>
+<section>
+  <h2>试行计划</h2>
+  <p><strong>${goal}｜${escapeHTML(summary.label)}</strong> · 每周挪 ${scalar.format(config.amount)} 小时 · ${duration} 周合计 ${scalar.format(summary.totalHours)} 小时</p>
+  <p class="report-meta">首周：${planChange}</p>
+  <p class="report-dates"><span>开始 ${time(record.startDate)}</span><span>计划复盘 ${time(record.reviewDate)}</span></p>
+  <dl class="report-prose">${prose('试行意图',record.intent,54)}${prose('停止条件',record.stopRule,54)}${record.note?prose('备注',record.note,54):''}</dl>
+</section>
+<section>
+  <h2>预计变化 · ${duration} 周</h2>
+  <table class="report-metrics">
+    <thead><tr><th scope="col">指标</th><th scope="col">原安排</th><th scope="col">所选方案</th><th scope="col">差值</th></tr></thead>
+    <tbody>${metricRows(summary)}</tbody>
+  </table>
+</section>
+<section>
+  <h2>个人底线</h2>
+  <dl class="report-limits">${limitRows(limits,summary.margins,duration)}</dl>
+  <p class="report-meta">${protectedTimes.length?`不减少：${protectedTimes.join('、')}`:'未设置不减少的时间项目。'}</p>
+</section>
+<section>
+  <h2>关键输入及来源</h2>
+  <p class="report-meta">来源对应基础输入，不含逐周调整。推演收入按有效工时折算。</p>
+  <dl class="report-sources">${sourceRows(sources)}</dl>
+</section>
+<section>
+  <h2>最近复盘${latest?` · ${time(latest.date)}`:''}</h2>
+  ${latest?`<dl class="report-review">${prose('执行',latest.execution,48)}${prose('实际结果',latest.outcome,48)}${prose('原因',latest.reason,48)}${prose('下一步',latest.nextStep,48)}</dl>`:'<p class="report-meta">暂无复盘。</p>'}
+</section>
+<footer>预计变化是模型推演。带省略号的内容为节选，全文保留在档案中。</footer>
+</article>`;
+}
+
+const REPORT_STYLE=`
+@page { size: A4; margin: 12mm; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f2f5f6; color: #18303b; font: 13px/1.36 system-ui, "PingFang SC", "Microsoft YaHei", sans-serif; }
+.decision-report { max-width: 820px; margin: 0 auto; padding: 20px; background: #fff; overflow-wrap: anywhere; }
+.report-header { border-top: 4px solid #186c63; padding-top: 10px; }
+.decision-report h1, .decision-report h2, .decision-report p, .decision-report dl, .decision-report dd { margin: 0; }
+.decision-report h1 { font-size: 1.9em; line-height: 1.25; margin-bottom: 4px; }
+.decision-report h2 { font-size: 1.1em; margin-bottom: 4px; }
+.report-kicker { font-size: .84em; font-weight: 700; color: #186c63; letter-spacing: .14em; }
+.report-meta, .decision-report footer { color: #445b65; font-size: .89em; }
+.decision-report section { margin-top: 9px; }
+.report-dates, .report-review, .report-sources, .report-limits { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); column-gap: 14px; }
+.decision-report .report-limits { grid-template-columns: repeat(3, minmax(0,1fr)); margin-bottom: 3px; }
+.decision-report .report-dates { width: fit-content; margin-top: 2px; }
+.report-prose > div, .report-review > div { display: grid; grid-template-columns: 4.6em minmax(0,1fr); }
+.report-prose dt, .report-review dt, .report-limits dt { font-weight: 650; }
+.report-metrics { width: 100%; border-collapse: collapse; table-layout: fixed; font-variant-numeric: tabular-nums; }
+.report-metrics th, .report-metrics td { text-align: right; padding: 2px 6px; border-bottom: 1px solid #dce4e7; }
+.report-metrics th:first-child { width: 40%; text-align: left; }
+.report-metrics thead { background: #edf3f5; }
+.report-metrics tbody th { font-weight: 500; }
+.report-favorable { color: #156653; font-weight: 650; }
+.report-unfavorable { color: #9a4231; font-weight: 650; }
+.report-sources > div { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,.8fr); align-items: baseline; column-gap: 6px; border-bottom: 1px solid #dce4e7; padding: 2px 0; }
+.report-source-value { text-align: right; font-weight: 550; }
+.report-source-context { grid-column: 1 / -1; }
+.report-source-context, .report-limits small { display: block; color: #445b65; font-size: .84em; }
+.decision-report footer { margin-top: 12px; border-top: 1px solid #a6b8bf; padding-top: 5px; }
+@media screen and (max-width: 560px) {
+  .decision-report { padding: 14px; }
+  .report-sources, .report-review, .decision-report .report-limits { grid-template-columns: minmax(0,1fr); row-gap: 3px; }
+  .report-metrics { font-size: .87em; }
+  .report-metrics th, .report-metrics td { padding: 3px; }
+  .report-metrics th:first-child { width: 32%; }
+}
+@media print {
+  body { background: #fff; font-size: 9.5pt; line-height: 1.32; }
+  .decision-report { padding: 0; margin: 0; max-width: none; }
+  .decision-report section, .decision-report header, .decision-report footer { break-inside: avoid; }
+  .decision-report section { margin-top: 8px; }
+  .decision-report footer { margin-top: 8px; }
+}
+`;
+
+function decisionReportDocument(record){
+  return `<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>单页决策报告 · ${escapeHTML(record.startDate)}</title>
+<style>${REPORT_STYLE}</style>
+</head>
+<body>
+${renderDecisionReport(record)}
+</body>
+</html>`;
+}
+
+return {renderDecisionReport,decisionReportDocument};
+})();
+__modules["records-ui"]=(()=>{
+const {clone }=__modules["schema"];
+const {GUIDE_GOALS }=__modules["guide"];
+const {SOURCE_FIELDS, SOURCE_LABELS, setSource, createTrial, appendTrial, appendReview, deleteTrial, localDate }=__modules["records"];
+const {decisionReportDocument }=__modules["decision-report"];
+
+const escapeHTML=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const reviewFields={execution:'review-execution',outcome:'review-outcome',reason:'review-reason',nextStep:'review-next'};
+const uid=()=>`${Date.now()}-${Math.random().toString(36).slice(2,12)}`;
+const downloadHTML=(name,html)=>{const blob=new Blob([html],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+
+function mountRecords({getState,onSources,onArchive,onDrafts}){
+  const $=id=>document.querySelector('#'+id);
+  let selection='',sourceKey='plan.work',sourceValue,sourceSignature='',reportSignature='',pendingDelete='';
+  const message=(id,text)=>{$(id).textContent=text;};
+  const saveNotice=ok=>ok===false?'本机保存未完成，请用“导出全部数据”备份。':'已保存到本机。';
+  function readTrial(){return {startDate:$('trial-start-date').value,reviewDate:$('trial-review-date').value,intent:$('trial-intent').value,stopRule:$('trial-stop').value};}
+  function readReview(){return {trialId:selection,date:$('review-date').value,...Object.fromEntries(Object.entries(reviewFields).map(([k,id])=>[k,$(id).value]))};}
+  function saveDraft(kind){
+    const d=clone(getState().recordDrafts);
+    if(kind==='trial')d.trial=readTrial();
+    if(kind==='review'&&selection){d.reviews=d.reviews.filter(r=>r.trialId!==selection);d.reviews.push(readReview());}
+    d.selectedId=selection;onDrafts(d);
+  }
+  function loadReview(){
+    const draft=getState().recordDrafts.reviews.find(r=>r.trialId===selection);
+    $('review-date').value=draft?.date||localDate();
+    for(const [key,id] of Object.entries(reviewFields))$(id).value=draft?.[key]||'';
+  }
+  function restoreDrafts(){
+    const d=getState().recordDrafts;
+    $('trial-start-date').value=d.trial.startDate;$('trial-review-date').value=d.trial.reviewDate;
+    $('trial-intent').value=d.trial.intent;$('trial-stop').value=d.trial.stopRule;
+    selection=d.selectedId;reportSignature='';sourceValue=undefined;loadReview();render();
+  }
+  function loadSource(){
+    const s=getState(),f=SOURCE_FIELDS.find(f=>f.id===sourceKey),entry=s.inputSources[sourceKey];
+    if(!f||!entry)return;
+    sourceValue=s.current[f.group][f.key];
+    sourceSignature=JSON.stringify(entry);
+    $('source-kind').value=entry.kind;$('source-date').value=entry.date;$('source-note').value=entry.note;
+    $('source-current').textContent=`${f.label}：${sourceValue} ${f.unit}。来源标记对应这个数值。`;
+  }
+  function render(){
+    const s=getState();
+    const counts=Object.keys(SOURCE_LABELS).map(kind=>`${SOURCE_LABELS[kind]} ${Object.values(s.inputSources).filter(e=>e.kind===kind).length} 项`);
+    $('source-summary').textContent=counts.join(' · ');
+    $('source-list').innerHTML=`<table><thead><tr><th>输入</th><th>当前值</th><th>来源</th><th>观察日期与说明</th></tr></thead><tbody>${SOURCE_FIELDS.map(f=>{const e=s.inputSources[f.id];return `<tr><th scope="row">${escapeHTML(f.label)}</th><td>${escapeHTML(s.current[f.group][f.key])} ${escapeHTML(f.unit)}</td><td>${escapeHTML(SOURCE_LABELS[e.kind])}</td><td>${escapeHTML(e.date||'未填写日期')}${e.note?` · ${escapeHTML(e.note)}`:''}</td></tr>`;}).join('')}</tbody></table>`;
+    const f=SOURCE_FIELDS.find(f=>f.id===sourceKey);
+    if(f&&(sourceValue!==s.current[f.group][f.key]||sourceSignature!==JSON.stringify(s.inputSources[sourceKey])))loadSource();
+    $('source-save').disabled=s.blocked;
+    $('trial-create').disabled=s.blocked||!s.choiceId;
+    $('trial-create-hint').textContent=s.blocked?'请先修正当前输入，再存入档案。':s.choiceId?'保存当时的输入、来源、底线和预期结果；之后复盘追加记录。':'先选择一项可试行的方案。';
+    const ordered=[...s.trialArchive].sort((a,b)=>b.startDate.localeCompare(a.startDate)||b.createdAt.localeCompare(a.createdAt)||b.id.localeCompare(a.id));
+    if(!ordered.some(r=>r.id===selection)){selection=ordered[0]?.id||'';loadReview();}
+    $('record-select').innerHTML=ordered.map((r,i)=>`<option value="${escapeHTML(r.id)}">${escapeHTML(r.startDate)} · ${escapeHTML(GUIDE_GOALS[r.snapshot.config.goal].label)} · ${escapeHTML(r.summary.label)} · ${i+1}</option>`).join('');
+    $('record-select').value=selection;
+    $('record-count').textContent=`${s.trialArchive.length} 份试行档案`;
+    $('record-empty').hidden=!!selection;$('record-detail').hidden=!selection;
+    $('record-picker').hidden=!selection;
+    const r=s.trialArchive.find(r=>r.id===selection);
+    // Avoid queued blank navigations racing the restored srcdoc during startup (WebKit).
+    if(!r){if($('report-preview').srcdoc)$('report-preview').srcdoc='';reportSignature='';return;}
+    $('record-context').textContent=`${r.startDate} 开始 · ${r.reviewDate} 计划复盘 · ${r.summary.label} · ${r.reviews.length} 次复盘`;
+    $('record-intent').textContent=r.intent;$('record-stop').textContent=r.stopRule;
+    $('record-original-note').textContent=r.note||'未填写补充笔记';
+    $('record-review-history').innerHTML=r.reviews.length?r.reviews.map(review=>`<article class="record-review"><h4>${escapeHTML(review.date)}</h4>${Object.entries({execution:'实际执行',outcome:'实际结果',reason:'差异原因',nextStep:'下一步'}).map(([key,label])=>`<p><strong>${label}：</strong>${escapeHTML(review[key]||'未填写')}</p>`).join('')}</article>`).join(''):'<p class="muted">还没有复盘记录。</p>';
+    const signature=JSON.stringify(r);
+    if(signature!==reportSignature){$('report-preview').srcdoc=decisionReportDocument(r);reportSignature=signature;}
+    $('review-save').disabled=r.reviews.length>=20;
+    $('review-capacity').textContent=r.reviews.length>=20?'已达到本档案20次复盘的上限。未保存的文字仍保留为草稿，可随全部数据导出。':`已记录 ${r.reviews.length} / 20 次复盘。`;
+    if(pendingDelete!==selection){pendingDelete='';$('record-delete-check').hidden=true;}
+  }
+  $('source-field').innerHTML=SOURCE_FIELDS.map(f=>`<option value="${f.id}">${escapeHTML(f.label)}</option>`).join('');$('source-field').value=sourceKey;
+  $('source-kind').innerHTML=Object.entries(SOURCE_LABELS).map(([key,label])=>`<option value="${key}">${label}</option>`).join('');
+  $('source-field').onchange=()=>{sourceKey=$('source-field').value;message('source-message','');loadSource();};
+  $('source-save').onclick=()=>{
+    if(getState().blocked){message('source-message','请先修正当前输入。');return;}
+    try{const s=getState(),value=setSource(s.inputSources,sourceKey,{kind:$('source-kind').value,date:$('source-date').value,note:$('source-note').value},s.current);const ok=onSources(value);render();message('source-message',`已更新这项输入的来源。${saveNotice(ok)}`);}catch(e){message('source-message',e.message);}
+  };
+  for(const id of ['trial-start-date','trial-review-date','trial-intent','trial-stop'])$(id).oninput=()=>saveDraft('trial');
+  for(const id of ['review-date',...Object.values(reviewFields)])$(id).oninput=()=>saveDraft('review');
+  $('trial-create').onclick=()=>{
+    const s=getState();if(s.blocked||!s.choiceId){message('trial-message','请先修正输入并选择一项可试行方案。');return;}
+    try{
+      const record=createTrial({id:uid(),createdAt:new Date().toISOString(),...readTrial(),scenario:s.current,schedule:s.schedule,weeks:s.weeks,config:s.config,limits:s.limits,choiceId:s.choiceId,sources:s.inputSources,note:s.note});
+      const archive=appendTrial(s.trialArchive,record);selection=record.id;saveDraft('trial');
+      const ok=onArchive(archive);loadReview();render();message('trial-message',`已添加 ${record.startDate} 的试行档案。${saveNotice(ok)}`);
+    }catch(e){message('trial-message',e.message);}
+  };
+  $('record-select').onchange=()=>{saveDraft('review');selection=$('record-select').value;const d=clone(getState().recordDrafts);d.selectedId=selection;onDrafts(d);loadReview();render();message('record-message','');};
+  $('review-save').onclick=()=>{
+    if(!selection)return;
+    try{const {trialId,...review}=readReview(),s=getState(),archive=appendReview(s.trialArchive,selection,{id:uid(),...review});
+      const ok=onArchive(archive),d=clone(getState().recordDrafts);d.reviews=d.reviews.filter(r=>r.trialId!==selection);onDrafts(d);loadReview();render();message('record-message',`已追加复盘，原先预期保持不变。${saveNotice(ok)}`);
+    }catch(e){message('record-message',e.message);}
+  };
+  $('record-report').onclick=()=>{const r=getState().trialArchive.find(r=>r.id===selection);if(r)downloadHTML(`金融学人-决策报告-${r.startDate}-${r.id}.html`,decisionReportDocument(r));};
+  $('record-delete').onclick=()=>{pendingDelete=selection;$('record-delete-check').hidden=false;};
+  $('record-delete-cancel').onclick=()=>{pendingDelete='';$('record-delete-check').hidden=true;};
+  $('record-delete-confirm').onclick=()=>{
+    if(!selection||pendingDelete!==selection)return;
+    const id=selection,archive=deleteTrial(getState().trialArchive,id);pendingDelete='';selection='';
+    const d=clone(getState().recordDrafts);d.selectedId='';d.reviews=d.reviews.filter(r=>r.trialId!==id);onDrafts(d);
+    const ok=onArchive(archive);render();$('record-delete-check').hidden=true;message('record-message',`已删除所选档案。${saveNotice(ok)}`);
+  };
+  restoreDrafts();
+  return {render,restoreDrafts};
+}
+
+return {mountRecords};
+})();
 __modules["workspace"]=(()=>{
 const {VERSION, clone, upgradeScenario }=__modules["schema"];
 const {validateSchedule }=__modules["model"];
@@ -1241,6 +1752,8 @@ const {DEFAULT_MARGINAL, validateMarginal }=__modules["marginal"];
 const {DEFAULT_GUIDE, GUIDE_OPTIONS, GUIDE_AMOUNT, isGuideAmount, validateGuide }=__modules["guide"];
 const {decodeLimits, decodeCompareView, LIMIT_FIELDS }=__modules["comparison"];
 const {decodeDiary }=__modules["sleep-diary"];
+const {decodeSources, decodeArchive }=__modules["records"];
+const {decodeRecordDrafts }=__modules["record-drafts"];
 
 const WORKSPACE_KEY='financial-human-workspace-v1.2';
 const WORKSPACE_FORMAT='financial-human-workspace-v1.2';
@@ -1302,7 +1815,8 @@ function decodeWorkspace(value){
   const sleepDemo=demo.sleepDemo??'original',sleepSource=demo.sleepSource??'unallocated';
   if(!['original','higherNeed','existingDebt'].includes(sleepDemo)||!['unallocated','leisure'].includes(sleepSource))throw new Error('睡眠示例设置无效');
   const sleepDiary=decodeDiary(value.sleepDiary);
-  return {format:WORKSPACE_FORMAT,experiment,sleepDiary,decision:{...clone(d),notes,selections,limits,view,limitDrafts:clone(limitDrafts)},demo:{...clone(demo),sleepDemo,sleepSource},fieldDrafts,scheduleText:value.scheduleText,scheduleError:value.scheduleError,marginalDraft:clone(marginalDraft)};
+  const inputSources=decodeSources(value.inputSources,experiment.current),trialArchive=decodeArchive(value.trialArchive),recordDrafts=decodeRecordDrafts(value.recordDrafts);
+  return {format:WORKSPACE_FORMAT,experiment,sleepDiary,inputSources,trialArchive,recordDrafts,decision:{...clone(d),notes,selections,limits,view,limitDrafts:clone(limitDrafts)},demo:{...clone(demo),sleepDemo,sleepSource},fieldDrafts,scheduleText:value.scheduleText,scheduleError:value.scheduleError,marginalDraft:clone(marginalDraft)};
 }
 
 function newDecision(){return {config:clone(DEFAULT_GUIDE),choiceId:null,step:1,reached:1,notes:[],selections:[]};}
@@ -1342,6 +1856,9 @@ const {SLEEP_CASES, sleepDemo }=__modules["sleep-comparison"];
 const {newDiary }=__modules["sleep-diary"];
 const {mountSleepDiary }=__modules["sleep-diary-ui"];
 const {PLAIN_FIELDS, PLAIN_GROUPS }=__modules["copy"];
+const {newSources, reconcileSources }=__modules["records"];
+const {newRecordDrafts }=__modules["record-drafts"];
+const {mountRecords }=__modules["records-ui"];
 
 const $=q=>document.querySelector(q);
 const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1358,6 +1875,7 @@ const guideNotes=new Map();
 const guideSelections=new Map();
 let guideStep=1,guideReached=1;
 let guideLimits=clone(DEFAULT_LIMITS),guideView=clone(DEFAULT_COMPARE_VIEW);
+let inputSources=newSources(current),trialArchive=[],recordDrafts=newRecordDrafts(),recordsUI=null;
 const limitDrafts=new Map();
 const timeLabels=Object.fromEntries(PLAN_GROUPS[0].fields.map(f=>[f.key,PLAIN_FIELDS[f.key]||f.label]));
 const signed=(v,d=2)=>Number.isFinite(v)?`${v>0?'+':''}${number(v,d)}`:'不计算';
@@ -1385,6 +1903,10 @@ function field(f,group,prefix=''){const id=`${prefix}${group}-${f.key}`,label=gr
 function table(headers,rows){return `<table><thead><tr>${headers.map(h=>`<th>${escapeHTML(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(v=>`<td>${escapeHTML(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;}
 function announce(text){$('#operation').textContent=text;}
 function setError(text){$('#error').hidden=!text;$('#error').textContent=text;}
+recordsUI=mountRecords({getState:()=>({current,schedule,weeks,config:guideConfig,limits:guideLimits,choiceId:guideChoice,inputSources,trialArchive,recordDrafts,note:$('#guide-note').value,blocked:drafts.size>0||limitDrafts.size>0}),
+  onSources:value=>{inputSources=value;return persistWorkspace();},
+  onArchive:value=>{trialArchive=value;return persistWorkspace();},
+  onDrafts:value=>{recordDrafts=value;return persistWorkspace();}});
 sleepDiaryUI=mountSleepDiary({getCurrent:()=>current,getDiary:()=>sleepDiary,setDiary:value=>{sleepDiary=value;persistWorkspace();},blocked:()=>drafts.size>0||limitDrafts.size>0,
   apply:next=>{rememberGuideNote();const rawSchedule=$('#schedule').value;current=next;renderControls();$('#schedule').value=rawSchedule;renderResults();persistWorkspace();}});
 function refreshDrafts(){
@@ -1418,6 +1940,7 @@ function renderControls(){
 }
 function card(label,value,reference,unit){const difference=Number.isFinite(value)&&Number.isFinite(reference)?value-reference:null;return `<article class="metric"><span class="label">${label}</span><strong>${number(value)} <small>${unit}</small></strong><small>对照安排 ${number(reference)} · 相差 ${delta(difference)}</small></article>`;}
 function renderResults(){
+  inputSources=reconcileSources(inputSources,current);
   comparison=comparePlans(current,baseline,weeks,schedule,baselineSchedule);
   const {current:a,baseline:b}=comparison;
   const av=a.feasible?a.final:null,bv=b.feasible?b.final:null;
@@ -1716,6 +2239,7 @@ function renderGuide(){
 }
 function renderGuideTrial(){
   const row=guideResult?.available.find(r=>r.id===guideChoice);
+  recordsUI?.render();
   $('#guide-save').disabled=!row;
   $('#guide-trial').hidden=!row;$('#guide-trial-placeholder').hidden=!!row;
   if(!row){$('#guide-trial-plan').innerHTML='';return;}
@@ -1786,7 +2310,7 @@ $('#guide-load').onclick=()=>{
   try{
     const raw=localStorage.getItem(TRIAL_KEY)??localStorage.getItem('financial-human-weekly-trial-v4')??localStorage.getItem('financial-human-weekly-trial-v3')??localStorage.getItem('financial-human-weekly-trial-v2')??localStorage.getItem('financial-human-weekly-trial-v1');if(!raw)throw new Error('本机还没有保存过试行计划。');
     const r=decodeGuideTrial(JSON.parse(raw));
-    rememberGuideNote();current=r.scenario;schedule=r.schedule;weeks=r.weeks;guideConfig=r.config;guideChoice=r.choiceId;guideStep=5;guideReached=5;
+    rememberGuideNote();current=r.scenario;inputSources=newSources(current,'unknown');schedule=r.schedule;weeks=r.weeks;guideConfig=r.config;guideChoice=r.choiceId;guideStep=5;guideReached=5;
     guideLimits=r.limits;limitDrafts.clear();
     guideNotes.set(guideNoteKey(),r.note);guideSelections.set(guideContextKey(),guideChoice);$('#guide-note').value=r.note;
     drafts.clear();fieldDrafts.clear();$('#weeks').value=weeks;renderControls();refreshDrafts();renderResults();renderGuideSteps(true);$('#guide-message').textContent=`已读取${r.legacy?'旧版学习':'上次'}试行计划，输入与参数已恢复。`;
@@ -1877,18 +2401,19 @@ function snapshot(){return {format:'financial-human-experiment-v1.2',version:VER
   marginalConfig:{...marginalConfig,week:marginalConfig.frequency==='once'?Math.min(weeks,marginalConfig.week):marginalConfig.week}};}
 function workspaceSnapshot(){
   rememberGuideNote();
-  return {format:WORKSPACE_FORMAT,experiment:snapshot(),sleepDiary,decision:{config:guideConfig,choiceId:guideChoice,step:guideStep,reached:guideReached,
+  return {format:WORKSPACE_FORMAT,experiment:snapshot(),sleepDiary,inputSources,trialArchive,recordDrafts,decision:{config:guideConfig,choiceId:guideChoice,step:guideStep,reached:guideReached,
     notes:[...guideNotes],selections:[...guideSelections],limits:guideLimits,limitDrafts:[...limitDrafts],view:guideView},demo:{goal:demoGoal,amounts:{...demoAmounts},sleepDemo:sleepDemoCase,sleepSource:sleepDemoSource},fieldDrafts:[...fieldDrafts],
     scheduleText:$('#schedule').value,scheduleError:drafts.get('schedule')||'',marginalDraft:Object.fromEntries(Object.keys(DEFAULT_MARGINAL).map(k=>[k,$('#marginal-'+k).value]))};
 }
 function persistWorkspace(force=false){
-  if(!ready||restoring)return;
-  if(storageBlocked&&!force)return;
+  if(!ready||restoring)return false;
+  if(storageBlocked&&!force)return false;
   try{
     const value=workspaceSnapshot();decodeWorkspace(value);
     localStorage.setItem(WORKSPACE_KEY,JSON.stringify(value));storageBlocked=false;
     $('#workspace-status').textContent='已自动保存到本机';
-  }catch(e){$('#workspace-status').textContent='未保存到本机，请导出数据保留。';}
+    return true;
+  }catch(e){$('#workspace-status').textContent='未保存到本机，请导出数据保留。';return false;}
 }
 function acceptSnapshot(s){
   const full=[WORKSPACE_FORMAT,'financial-human-workspace-v1.1','financial-human-workspace-v1'].includes(s?.format)?decodeWorkspace(s):null,e=full?.experiment??decodeExperiment(s);
@@ -1896,6 +2421,7 @@ function acceptSnapshot(s){
   rememberGuideNote();restoring=true;
   try{
     current=e.current;baseline=e.baseline;schedule=e.schedule;baselineSchedule=e.baselineSchedule;weeks=e.weeks;marginalConfig=e.marginalConfig;
+    inputSources=full?.inputSources??newSources(current,'unknown');trialArchive=full?.trialArchive??[];recordDrafts=full?.recordDrafts??newRecordDrafts();
     if(full){
       sleepDiary=full.sleepDiary;
       const d=full.decision;guideConfig=d.config;guideChoice=d.choiceId;guideStep=d.step;guideReached=d.reached;
@@ -1915,7 +2441,7 @@ function acceptSnapshot(s){
       for(const key of Object.keys(DEFAULT_MARGINAL))$('#marginal-'+key).value=full.marginalDraft[key];
       updateMarginal();
     }
-    refreshDrafts();renderResults();renderDemo();renderSleepDemo();renderGuideSteps();
+    recordsUI?.restoreDrafts();refreshDrafts();renderResults();renderDemo();renderSleepDemo();renderGuideSteps();
   }finally{restoring=false;}
   storageBlocked=false;persistWorkspace();
 }
@@ -1943,8 +2469,8 @@ document.addEventListener('input',e=>{
 });
 $('#schedule-apply').onclick=()=>{try{const value=JSON.parse($('#schedule').value);const errors=validateSchedule(value);if(errors.length)throw new Error(errors.join('；'));simulate(current,weeks,{schedule:value});schedule=value;drafts.delete('schedule');refreshDrafts();$('#schedule-note').textContent=`${Object.keys(schedule).length} 周有单独安排`;renderResults();announce('逐周安排已更新。');}catch(e){drafts.set('schedule',e.message);refreshDrafts();syncLinkedGuide();persistWorkspace();}};
 $('#pin').onclick=()=>{baseline=clone(current);baselineSchedule=clone(schedule);renderResults();announce('已固定当前输入、参数与逐周安排作为基准。');};
-$('#restore').onclick=()=>{current=clone(baseline);schedule=clone(baselineSchedule);resetDrafts();announce('已恢复保存的对照安排。');};
-$('#reset').onclick=()=>{current=clone(DEFAULT_SCENARIO);schedule={};resetDrafts();announce('实验组恢复默认，基准未变。');};
+$('#restore').onclick=()=>{current=clone(baseline);inputSources=newSources(current,'unknown');schedule=clone(baselineSchedule);resetDrafts();announce('已恢复保存的对照安排，请核对输入来源。');};
+$('#reset').onclick=()=>{current=clone(DEFAULT_SCENARIO);inputSources=newSources(current);schedule={};resetDrafts();announce('实验组恢复默认，基准与试行档案未变。');};
 $('#weeks').onchange=()=>{weeks=Number($('#weeks').value);updateMarginal();renderResults();};
 $('#guide-weeks').onchange=()=>{$('#weeks').value=$('#guide-weeks').value;$('#weeks').onchange();};
 $('#question').onchange=renderResults;$('#chart-metric').onchange=drawChart;
@@ -1977,7 +2503,7 @@ $('#observations').onchange=async e=>{try{const file=e.target.files[0];if(!file)
   ['前段试算 / 后段核对',`${fit.trainCount} / ${fit.testCount}`],['疲劳恢复率',fit.parameters.fatigueRecovery],['学习增益系数',fit.parameters.learningGain],['后段预测误差：原设置 → 新设置',`${number(fit.holdoutBefore,3)} → ${number(fit.holdoutAfter,3)}`],['判读',fit.improved?'后段预测更贴近记录':'后段预测没有变准，保留原设置']]);$('#adopt-fit').hidden=!fit.improved;}catch(error){fit=null;$('#adopt-fit').hidden=true;$('#calibration-result').textContent=error.message;}};
 $('#adopt-fit').onclick=()=>{if(!fit?.improved)return;current.parameters={...current.parameters,...fit.parameters};resetDrafts();announce('已采用两个试拟合参数；保存的对照安排未变。');};
 $('#export').onclick=()=>download('financial-human-1.2.json',{...workspaceSnapshot(),results:drafts.size?null:comparison,marginalResults:marginalResult,exportedAt:new Date().toISOString()});
-$('#import').onchange=async e=>{try{const file=e.target.files[0];if(!file)return;if(file.size>5000000)throw new Error('文件超过 5 MB');const value=JSON.parse(await file.text()),old=(value.experiment?.current??value.current)?.version!==VERSION;acceptSnapshot(value);announce(old?'旧数据已导入。原来的输入保留，缺少的设置使用默认值；请核对后继续。':'数据和对照安排已导入。');}catch(error){setError(error.message);}};
+$('#import').onchange=async e=>{try{const file=e.target.files[0];if(!file)return;if(file.size>64000000)throw new Error('文件超过 64 MB');const value=JSON.parse(await file.text()),old=(value.experiment?.current??value.current)?.version!==VERSION;acceptSnapshot(value);const message=old?'旧数据已导入。原来的输入保留，缺少的设置使用默认值；请核对后继续。':'数据和对照安排已导入。';announce(message);$('#file-message').textContent=message;}catch(error){setError(error.message);$('#file-message').textContent=`导入未完成：${error.message}。当前工作区保持不变。`;}};
 $('#save').onclick=()=>{persistWorkspace(true);announce($('#workspace-status').textContent);};
 $('#load').onclick=()=>{try{const value=localStorage.getItem(WORKSPACE_KEY)??localStorage.getItem('financial-human-v0.3');if(!value)throw new Error('没有本机保存的数据');acceptSnapshot(JSON.parse(value));announce('已读取本机数据。');}catch(e){setError(e.message);}};
 $('#dictionary').innerHTML=table(['层级','代码变量','名称与单位','定义 / 测量边界'],[

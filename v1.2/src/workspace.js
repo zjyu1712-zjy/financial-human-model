@@ -4,6 +4,8 @@ import { DEFAULT_MARGINAL, validateMarginal } from './marginal.js';
 import { DEFAULT_GUIDE, GUIDE_OPTIONS, GUIDE_AMOUNT, isGuideAmount, validateGuide } from './guide.js';
 import { decodeLimits, decodeCompareView, LIMIT_FIELDS } from './comparison.js';
 import { decodeDiary } from './sleep-diary.js';
+import { decodeSources, decodeArchive } from './records.js';
+import { decodeRecordDrafts } from './record-drafts.js';
 
 export const WORKSPACE_KEY='financial-human-workspace-v1.2';
 export const WORKSPACE_FORMAT='financial-human-workspace-v1.2';
@@ -65,7 +67,8 @@ export function decodeWorkspace(value){
   const sleepDemo=demo.sleepDemo??'original',sleepSource=demo.sleepSource??'unallocated';
   if(!['original','higherNeed','existingDebt'].includes(sleepDemo)||!['unallocated','leisure'].includes(sleepSource))throw new Error('睡眠示例设置无效');
   const sleepDiary=decodeDiary(value.sleepDiary);
-  return {format:WORKSPACE_FORMAT,experiment,sleepDiary,decision:{...clone(d),notes,selections,limits,view,limitDrafts:clone(limitDrafts)},demo:{...clone(demo),sleepDemo,sleepSource},fieldDrafts,scheduleText:value.scheduleText,scheduleError:value.scheduleError,marginalDraft:clone(marginalDraft)};
+  const inputSources=decodeSources(value.inputSources,experiment.current),trialArchive=decodeArchive(value.trialArchive),recordDrafts=decodeRecordDrafts(value.recordDrafts);
+  return {format:WORKSPACE_FORMAT,experiment,sleepDiary,inputSources,trialArchive,recordDrafts,decision:{...clone(d),notes,selections,limits,view,limitDrafts:clone(limitDrafts)},demo:{...clone(demo),sleepDemo,sleepSource},fieldDrafts,scheduleText:value.scheduleText,scheduleError:value.scheduleError,marginalDraft:clone(marginalDraft)};
 }
 
 export function newDecision(){return {config:clone(DEFAULT_GUIDE),choiceId:null,step:1,reached:1,notes:[],selections:[]};}

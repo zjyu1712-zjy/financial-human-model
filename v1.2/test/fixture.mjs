@@ -6,7 +6,8 @@ export async function boot(hash='#guide',storage=new Map(),storageError=false){
   const elements=new Map(),events={},listeners={},eventHandlers={},location={hash},blobs=[];
   const presets=['recover','spend','invest'].map(p=>({dataset:{preset:p}}));
   const get=id=>{
-    if(!elements.has(id))elements.set(id,{id,_value:'',_html:'',textContent:'',hidden:false,disabled:false,checked:false,dataset:{},
+    if(!elements.has(id))elements.set(id,{id,_value:'',_html:'',_srcdoc:'',srcdocWrites:[],textContent:'',hidden:false,disabled:false,checked:false,dataset:{},
+      get srcdoc(){return this._srcdoc;},set srcdoc(v){this._srcdoc=v;this.srcdocWrites.push(v);},
       get value(){return this._value;},set value(v){this._value=String(v);},
       get innerHTML(){return this._html;},set innerHTML(v){this._html=v;
         for(const match of v.matchAll(/<input\b[^>]*>/g)){
