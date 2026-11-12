@@ -1,4 +1,4 @@
-const report={version:'1.2.0',runnerVersion:'1.2-visibility-fix',runnerIntegrity:QA_BUILD.runnerIntegrity,integrity:QA_BUILD.integrity,userAgent:navigator.userAgent,startedAt:null,checks:[],errors:[]};
+const report={version:'1.2.0',runnerVersion:'1.2-decision-records',runnerIntegrity:QA_BUILD.runnerIntegrity,integrity:QA_BUILD.integrity,userAgent:navigator.userAgent,startedAt:null,checks:[],errors:[]};
 let frame,win,doc,width;
 const prefix='financial-human-qa-'+Date.now()+'-';
 const pause=()=>new Promise(resolve=>setTimeout(resolve,60));
@@ -240,12 +240,41 @@ document.getElementById('run').onclick=async()=>{
         await load();assert(el('personal-plan-work').value==='38'&&el('parameters-fatigueRecovery').value==='0.45','记录修正后刷新丢失');
         assert(savedWorkspace().sleepDiary.records.length===43,'采用修改了原始记录');
       });
+      clearTestStorage();await load();
+      await check('输入来源填写、数值变动与刷新',async()=>{
+        click('guide-next');el('input-provenance').open=true;
+        input('source-field','plan.work','change');input('source-kind','record','change');input('source-date',el('trial-start-date').value);input('source-note','合成日程记录');click('source-save');
+        assert(savedWorkspace().inputSources['plan.work'].kind==='record','来源未保存');layout('来源填写');
+        input('personal-plan-work',39);assert(savedWorkspace().inputSources['plan.work'].kind==='unknown','数值变化沿用了旧来源');
+        await load();assert(savedWorkspace().inputSources['plan.work'].kind==='unknown','刷新后来源失效状态丢失');
+        input('personal-plan-work',40);el('input-provenance').open=true;input('source-kind','record','change');input('source-date',el('trial-start-date').value);click('source-save');
+      });
+      await check('同日多份档案与历史报告隔离',async()=>{
+        click('guide-next');click('guide-next');doc.querySelector('[data-guide-choice="work"]').click();click('guide-next');
+        input('trial-intent','合成案例：完成一节课程');input('trial-stop','必要工作受影响时调整');click('trial-create');click('trial-create');
+        const before=savedWorkspace().trialArchive;assert(before.length===2&&before[0].id!==before[1].id,'同日档案被覆盖');layout('试行归档');
+        await page('model');input('parameters-learningGain',2);assert(JSON.stringify(savedWorkspace().trialArchive)===JSON.stringify(before),'参数变化改写历史');
+        await page('files');el('record-preview-panel').open=true;assert(el('report-preview').srcdoc.includes('单页决策报告'),'没有报告预览');assert(el('report-preview').srcdoc.includes('来自记录'),'报告遗漏来源');layout('档案和报告');
+      });
+      await check('结构化复盘追加、草稿与刷新',async()=>{
+        const d=savedWorkspace(),r=d.trialArchive.find(r=>r.id===el('record-select').value),before=JSON.stringify(r.snapshot);
+        input('review-date',r.startDate);input('review-execution','实际完成一小时');input('review-outcome','完成半节课');input('review-reason','临时工作');input('review-next','下周缩小任务');click('review-save');
+        const next=savedWorkspace().trialArchive.find(x=>x.id===r.id);assert(next.reviews.length===1,'复盘未追加');assert(JSON.stringify(next.snapshot)===before,'复盘改变原判断');
+        input('review-execution','下一次复盘草稿');await load();await page('files');assert(el('review-execution').value==='下一次复盘草稿','复盘草稿未恢复');
+        assert(el('record-review-history').textContent.includes('实际完成一小时'),'历史复盘丢失');layout('结构化复盘');
+      });
+      await check('无效输入阻止归档且删除需确认',async()=>{
+        await page('guide');input('personal-plan-work','');assert(el('trial-create').disabled,'无效输入仍可归档');
+        await page('files');assert(el('report-preview').srcdoc.includes('单页决策报告'),'无效当前输入清除了历史报告');
+        click('record-delete');assert(savedWorkspace().trialArchive.length===2,'未确认就删除');click('record-delete-cancel');assert(savedWorkspace().trialArchive.length===2,'取消删除未保留');
+        click('record-delete');click('record-delete-confirm');assert(savedWorkspace().trialArchive.length===1,'确认删除未生效');layout('删除后');
+      });
     }
     report.errors=[...window.__qaErrors];
   }catch(error){report.errors.push(error.message);}
   finally{
     try{clearTestStorage();}catch(error){report.errors.push(error.message);}
-    report.finishedAt=new Date().toISOString();report.passed=report.checks.length===120&&report.checks.every(c=>c.pass)&&report.errors.length===0;
+    report.finishedAt=new Date().toISOString();report.passed=report.checks.length===136&&report.checks.every(c=>c.pass)&&report.errors.length===0;
     document.getElementById('status').textContent=`${report.passed?'检查通过':'检查发现问题'}：${report.checks.filter(c=>c.pass).length}/${report.checks.length} 项${report.errors.length?'；'+report.errors.join('；'):''}`;
     document.getElementById('download').disabled=false;document.getElementById('run').disabled=false;
   }

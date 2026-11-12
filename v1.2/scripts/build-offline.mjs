@@ -2,7 +2,7 @@ import {readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {resolve} from 'node:path';
 const root=fileURLToPath(new URL('../',import.meta.url));
-const order=['schema','sleep','model','legacy-model','sleep-comparison','sleep-diary','sleep-diary-ui','copy','marginal','demo','comparison','guide','workspace','navigation','app'];
+const order=['schema','sleep','model','legacy-model','sleep-comparison','sleep-diary','sleep-diary-ui','copy','marginal','demo','comparison','guide','records','record-drafts','decision-report','records-ui','workspace','navigation','app'];
 export async function buildOffline(entry='app'){
   if(!order.includes(entry))throw new Error('Unknown entry');
   const seen=new Set(),chunks=[];

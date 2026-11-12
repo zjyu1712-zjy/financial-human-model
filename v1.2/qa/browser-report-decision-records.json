@@ -1,0 +1,700 @@
+{
+  "version": "1.2.0",
+  "runnerVersion": "1.2-decision-records",
+  "runnerIntegrity": {
+    "test/browser-check.js": "9a363cc7304a886bd071582fe655933e4bf3958cf253c1b7d847d6fdf72ced94",
+    "test/browser-layout.mjs": "8411622ff703a4a18f63d51d1276c57880a90ed6af9fb108249a6067db19452d"
+  },
+  "integrity": {
+    "index.html": "421110b4c46f157b5b5bed5d1a7180858dc7229e633e181c183d54cd60da5617",
+    "styles.css": "ee7b35bbdec80456440c76f86151698b1c87e5903708f3fda7365e30672a65d9",
+    "app.offline.js": "8a64299bdb43b7c76bff9957aa6158f3262b9859c40c31f02e6f7f35f34aab2e"
+  },
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36",
+  "startedAt": "2026-11-11T11:52:00.879Z",
+  "checks": [
+    {
+      "width": 390,
+      "name": "启动与单步骤显示",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "0至48小时滑动、重算与刷新保留",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "learn 五步完整流程",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "recover 五步完整流程",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "income 五步完整流程",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "百分比、过程疲劳与零基准",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "投入回报图与两两方案对照",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "个人底线筛选、无效草稿与恢复",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "逐周图表、展开明细及跨页刷新",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "底层参数自动重算并保留文字",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "方案失效、恢复与草稿",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "无效输入不显示旧方案",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "刷新后输入和草稿恢复",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "固定示例隔离与各档比较",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "guide 页面布局",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "decision 页面布局",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "systems 页面布局",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "model 页面布局",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "marginal 页面布局",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "evidence 页面布局",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "files 页面布局",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "个人睡眠需求、估计欠的睡眠与恢复联动",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "睡眠参数往返、无效输入与试行草稿",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "新旧睡眠模型六种对照与曲线边界",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "睡眠固定示例隔离、切换与刷新保留",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "整站日常用语与睡眠引导逐步显示",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "每日记录校验、保存与模型隔离",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "按日期保留草稿、撤销删除与刷新",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "完整周恢复试算、采用与结果联动",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "每周实际安排、跨周草稿与采用起点",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "输入来源填写、数值变动与刷新",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "同日多份档案与历史报告隔离",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "结构化复盘追加、草稿与刷新",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "name": "无效输入阻止归档且删除需确认",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "启动与单步骤显示",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "0至48小时滑动、重算与刷新保留",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "learn 五步完整流程",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "recover 五步完整流程",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "income 五步完整流程",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "百分比、过程疲劳与零基准",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "投入回报图与两两方案对照",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "个人底线筛选、无效草稿与恢复",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "逐周图表、展开明细及跨页刷新",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "底层参数自动重算并保留文字",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "方案失效、恢复与草稿",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "无效输入不显示旧方案",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "刷新后输入和草稿恢复",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "固定示例隔离与各档比较",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "guide 页面布局",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "decision 页面布局",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "systems 页面布局",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "model 页面布局",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "marginal 页面布局",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "evidence 页面布局",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "files 页面布局",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "个人睡眠需求、估计欠的睡眠与恢复联动",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "睡眠参数往返、无效输入与试行草稿",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "新旧睡眠模型六种对照与曲线边界",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "睡眠固定示例隔离、切换与刷新保留",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "整站日常用语与睡眠引导逐步显示",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "每日记录校验、保存与模型隔离",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "按日期保留草稿、撤销删除与刷新",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "完整周恢复试算、采用与结果联动",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "每周实际安排、跨周草稿与采用起点",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "输入来源填写、数值变动与刷新",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "同日多份档案与历史报告隔离",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "结构化复盘追加、草稿与刷新",
+      "pass": true
+    },
+    {
+      "width": 720,
+      "name": "无效输入阻止归档且删除需确认",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "启动与单步骤显示",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "0至48小时滑动、重算与刷新保留",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "learn 五步完整流程",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "recover 五步完整流程",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "income 五步完整流程",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "百分比、过程疲劳与零基准",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "投入回报图与两两方案对照",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "个人底线筛选、无效草稿与恢复",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "逐周图表、展开明细及跨页刷新",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "底层参数自动重算并保留文字",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "方案失效、恢复与草稿",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "无效输入不显示旧方案",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "刷新后输入和草稿恢复",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "固定示例隔离与各档比较",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "guide 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "decision 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "systems 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "model 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "marginal 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "evidence 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "files 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "个人睡眠需求、估计欠的睡眠与恢复联动",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "睡眠参数往返、无效输入与试行草稿",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "新旧睡眠模型六种对照与曲线边界",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "睡眠固定示例隔离、切换与刷新保留",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "整站日常用语与睡眠引导逐步显示",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "每日记录校验、保存与模型隔离",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "按日期保留草稿、撤销删除与刷新",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "完整周恢复试算、采用与结果联动",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "每周实际安排、跨周草稿与采用起点",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "输入来源填写、数值变动与刷新",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "同日多份档案与历史报告隔离",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "结构化复盘追加、草稿与刷新",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "name": "无效输入阻止归档且删除需确认",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "启动与单步骤显示",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "0至48小时滑动、重算与刷新保留",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "learn 五步完整流程",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "recover 五步完整流程",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "income 五步完整流程",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "百分比、过程疲劳与零基准",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "投入回报图与两两方案对照",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "个人底线筛选、无效草稿与恢复",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "逐周图表、展开明细及跨页刷新",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "底层参数自动重算并保留文字",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "方案失效、恢复与草稿",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "无效输入不显示旧方案",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "刷新后输入和草稿恢复",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "固定示例隔离与各档比较",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "guide 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "decision 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "systems 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "model 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "marginal 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "evidence 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "files 页面布局",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "个人睡眠需求、估计欠的睡眠与恢复联动",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "睡眠参数往返、无效输入与试行草稿",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "新旧睡眠模型六种对照与曲线边界",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "睡眠固定示例隔离、切换与刷新保留",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "整站日常用语与睡眠引导逐步显示",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "每日记录校验、保存与模型隔离",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "按日期保留草稿、撤销删除与刷新",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "完整周恢复试算、采用与结果联动",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "每周实际安排、跨周草稿与采用起点",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "输入来源填写、数值变动与刷新",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "同日多份档案与历史报告隔离",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "结构化复盘追加、草稿与刷新",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "name": "无效输入阻止归档且删除需确认",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "finishedAt": "2026-11-11T11:52:20.801Z",
+  "passed": true
+}
