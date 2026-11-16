@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "build": "node scripts/build-offline.mjs",
+    "build": "node scripts/build-offline.mjs && node scripts/build-standalone.mjs",
+    "build:standalone": "node scripts/build-standalone.mjs",
     "build:browser-check": "node scripts/build-browser-check.mjs"
   }
 }
