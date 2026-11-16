@@ -1,10 +1,12 @@
 import {readFile,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {syntheticDiary} from '../test/diary-cases.mjs';
+import {buildStandalone} from './build-standalone.mjs';
 const root=new URL('../',import.meta.url);
 const [html,css,bundle,runner,layout]=await Promise.all(['index.html','styles.css','app.offline.js','test/browser-check.js','test/browser-layout.mjs'].map(p=>readFile(new URL(p,root),'utf8')));
 const integrity=Object.fromEntries([['index.html',html],['styles.css',css],['app.offline.js',bundle]].map(([name,text])=>[name,createHash('sha256').update(text).digest('hex')]));
-const source=html.replace('<link rel="stylesheet" href="styles.css">',`<style>${css}</style>`).replace('<script defer src="app.offline.js"></script>',`<script>${bundle}</script>`);
+const source=await buildStandalone();
+integrity['financial-human-model-standalone.html']=createHash('sha256').update(source).digest('hex');
 const runnerIntegrity=Object.fromEntries([['test/browser-check.js',runner],['test/browser-layout.mjs',layout]].map(([name,text])=>[name,createHash('sha256').update(text).digest('hex')]));
 const browserRunner=layout.replace(/^export /gm,'')+'\n'+runner;
 const data=JSON.stringify({source,integrity,runnerIntegrity,diaryFixture:syntheticDiary().d}).replace(/</g,'\\u003c');

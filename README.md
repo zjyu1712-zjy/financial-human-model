@@ -4,13 +4,22 @@
 
 ## 当前版本：1.2
 
+- [单文件版：下载这一个 HTML 即可使用或转发](./v1.2/financial-human-model-standalone.html)
 - [查看 1.2 源码与使用说明](./v1.2/README.txt)
 - [下载 1.2 离线发布包](https://github.com/zjyu1712-zjy/financial-human-model/releases/tag/v1.2.0)
 - [完整模型说明](./v1.2/MODEL_SPEC.txt)
 
-下载发布包并解压，在 Edge、Chrome 或其他现代浏览器中打开 `index.html`；如果下载整个仓库，请打开 `v1.2/index.html`。
+给别人发送或放到桌面使用，请保存 `v1.2/financial-human-model-standalone.html`（GitHub 文件页点击 Download raw file）。它已包含样式与程序，只需这一个文件；保存后用 Edge、Chrome 等现代浏览器打开，无须联网或安装。聊天软件的文件预览可能不执行程序，请先下载，再用浏览器打开。
+
+“底层模型”中的四份本地说明也已内置，点击相应链接即可下载文本；论文等外部参考网址需联网访问。
+
+单文件版验收：216 项自动测试通过，[136 项浏览器检查通过](./v1.2/qa/browser-report-standalone.json)，覆盖四种窗口宽度。单独复制到空目录后的启动、完整五步流程、档案与报告、内置说明下载均已检查。
+
+源码入口 `v1.2/index.html` 仍需与同目录的 `styles.css`、`app.offline.js` 一起保留。原 GitHub Release 下载包请完整解压后打开 `index.html`。
 
 网页离线运行，无需安装依赖。输入与记录保存在当前浏览器，可以导出备份。仓库和发布包中的记录样本用于测试，不是用户的实际记录。
+
+发送单文件版不会带走你在浏览器中保存的记录。更换文件位置、浏览器或设备前，先在“保存与导出”导出全部数据，再到新位置导入；如需与他人共享记录，可另行发送导出的数据文件。
 
 ## 可以做什么
 
@@ -51,7 +60,7 @@ npm test
 npm run build
 ```
 
-修改 `src/` 后重新构建 `app.offline.js`。浏览器回归入口为 `v1.2/browser-check.html`。
+修改源码后执行 `npm run build`，同时更新 `app.offline.js` 和单文件版；只生成单文件可运行 `npm run build:standalone`。请勿直接编辑生成的 HTML。浏览器回归入口为 `v1.2/browser-check.html`，运行 `npm run build:browser-check` 后会检查同一份单文件内容。
 
 ## 版本目录
 

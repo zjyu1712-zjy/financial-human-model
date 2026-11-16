@@ -2,7 +2,7 @@ import vm from 'node:vm';
 import {buildOffline} from '../scripts/build-offline.mjs';
 
 // Event/value fixture only. Browser layout is verified separately by browser-check.html.
-export async function boot(hash='#guide',storage=new Map(),storageError=false){
+export async function boot(hash='#guide',storage=new Map(),storageError=false,bundle=null){
   const elements=new Map(),events={},listeners={},eventHandlers={},location={hash},blobs=[];
   const presets=['recover','spend','invest'].map(p=>({dataset:{preset:p}}));
   const get=id=>{
@@ -18,9 +18,9 @@ export async function boot(hash='#guide',storage=new Map(),storageError=false){
     return elements.get(id);
   };
   get('question').value='week';get('weeks').value='12';get('chart-metric').value='fatigue';
-  const document={querySelector:q=>get(q.slice(1)),querySelectorAll:q=>q==='[data-group]'?[...elements.values()].filter(e=>e.dataset.group):presets,
+  const document={querySelector:q=>get(q.slice(1)),querySelectorAll:q=>q==='[data-group]'?[...elements.values()].filter(e=>e.dataset.group):q==='[data-preset]'?presets:[],
     addEventListener:(type,cb)=>{(eventHandlers[type]??=[]).push(cb);listeners[type]=event=>eventHandlers[type].forEach(fn=>fn(event));},createElement:()=>({click(){}})};
-  vm.runInNewContext(await buildOffline(),{document,location,addEventListener:(name,cb)=>events[name]=cb,scrollTo(){},setTimeout:()=>{},Blob,
+  vm.runInNewContext(bundle??await buildOffline(),{document,location,addEventListener:(name,cb)=>events[name]=cb,scrollTo(){},setTimeout:()=>{},Blob,
     URL:{createObjectURL:b=>{blobs.push(b);return 'blob:test';},revokeObjectURL(){}},
     localStorage:{getItem:k=>{if(storageError)throw new Error('Storage denied');return storage.get(k)??null;},setItem:(k,v)=>{if(storageError)throw new Error('Storage denied');storage.set(k,v);}}});
   const go=key=>{location.hash='#'+key;events.hashchange();};
