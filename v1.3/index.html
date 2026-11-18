@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="比较保持现状与改变工作安排的财务结果、生活取舍和行动条件。离线本地计算。"><title>金融学人 1.3 · 工作安排决策</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<header class="site-header"><a class="brand" href="#decision">金融学人 <span>1.3 · 本地试用版</span></a><nav aria-label="主导航"><a href="#decision">做一个选择</a><a href="#archive">决策档案</a><a href="#method">计算依据</a></nav></header>
+<main>
+  <div class="intro"><div class="eyebrow">人生选择 · 财务与生活放在一起看</div><h1>换一种工作安排，会怎样？</h1><p>保留现状作基线，比较钱、时间与承受边界，再写下行动的条件。</p></div>
+  <div id="storage-warning" class="notice" role="status" hidden><p id="storage-warning-text"></p><button id="download-recovery" hidden>下载原始保存内容</button></div>
+  <div id="operation" role="status" aria-live="polite"></div>
+  <section id="decision" aria-labelledby="decision-heading">
+    <div class="section-heading"><h2 id="decision-heading">我的工作安排决策</h2><span id="draft-status" class="muted">数据留在当前浏览器</span></div>
+    <div class="example-note">首次打开使用示例数值，请按自己的情况修改。金额均为税后人民币；来源未知的数值需要核对。<button id="load-example" type="button">重新载入示例</button><label class="inline"><input id="replace-example-check" type="checkbox">确认替换当前草稿</label></div>
+    <nav class="steps" aria-label="决策步骤"><button data-step="1" aria-current="step">1 说明选择</button><button data-step="2">2 确认现状</button><button data-step="3">3 改变安排</button><button data-step="4">4 对照结果</button><button data-step="5">5 记录决定</button></nav>
+    <div id="validation-errors" class="error" role="alert" hidden></div>
+    <section id="step-1" class="step" aria-labelledby="step-title-1">
+      <div class="step-heading"><span>01 / 05</span><h3 id="step-title-1" tabindex="-1">你正在考虑什么改变？</h3></div>
+      <div class="fields" id="intent-fields"></div>
+      <div class="explain"><h4>这一次，只比较一个明确的选择</h4><p>例如：保持现在的工作，与从下个月起减少工时、收入相应改变。也可以模拟先休整几个月，再回到原安排。</p><p>“改变安排”在设定的持续期结束后恢复原安排。若打算长期改变，把持续期设为覆盖剩余观察期。</p></div>
+    </section>
+    <section id="step-2" class="step" aria-labelledby="step-title-2" hidden>
+      <div class="step-heading"><span>02 / 05 · 当前事实</span><h3 id="step-title-2" tabindex="-1">确认你的财务与时间起点</h3></div>
+      <h4>可用资金与每月支出</h4><div id="profile-money" class="fields"></div>
+      <h4>收入怎样计算？</h4><p class="muted">固定工资按约定金额计入。按小时或计件收入使用付费时数和单价；不因疲劳、情绪或认知自评分数自动打折。</p><div id="profile-income" class="fields"></div>
+      <h4>一周的时间</h4><p class="muted">合计不超过 168 小时；剩余为“未分配时间”，不等于全部可自由支配。</p><div id="profile-time" class="fields"></div><p id="baseline-time-summary" class="muted"></p>
+      <h4>我希望守住的底线</h4><div id="limit-fields" class="fields"></div>
+    </section>
+    <section id="step-3" class="step" aria-labelledby="step-title-3" hidden>
+      <div class="step-heading"><span>03 / 05 · 计划行动</span><h3 id="step-title-3" tabindex="-1">另一种工作安排是什么？</h3></div>
+      <div id="change-fields" class="fields"></div><h4>改变期间的税后收入</h4><div id="change-income" class="fields"></div><h4>改变期间的一周</h4><div id="change-time" class="fields"></div><p id="changed-time-summary" class="muted"></p>
+      <details><summary>这项选择还会影响生活的哪些部分？</summary><p class="muted">填写你的预期、代价或待观察事项。这些文字与财务结果一起保存，不折算为工资或投资收益。</p><div id="life-fields" class="fields single"></div></details>
+    </section>
+    <section id="step-4" class="step" aria-labelledby="step-title-4" hidden>
+      <div class="step-heading"><span>04 / 05 · 同一组假设</span><h3 id="step-title-4" tabindex="-1">钱、时间和选择余地有什么变化？</h3></div>
+      <div class="scenario-switch" role="group" aria-label="市场情景"><button id="market-base" aria-pressed="true">基础假设</button><button id="market-stress" aria-pressed="false">市场下跌情景</button></div>
+      <p id="scenario-description" class="muted"></p><div id="result-cards" class="cards"></div><div id="result-comparison" class="table-wrap"></div>
+      <div class="comparison-notes"><div><h4>时间交换</h4><div id="time-results"></div></div><div><h4>选择成立的条件</h4><ul id="decision-conditions"></ul></div></div>
+      <details><summary>逐月资金明细</summary><div id="monthly-results" class="table-wrap"></div></details>
+      <details><summary>修改金融假设</summary><p class="muted">两方案始终使用同一市场路径。年回报是税费后的有效年回报假设，几何换算为月回报；指定月份的冲击另行相乘。情景是条件推演，不是发生概率。</p><div id="assumption-fields" class="fields"></div></details>
+    </section>
+    <section id="step-5" class="step" aria-labelledby="step-title-5" hidden>
+      <div class="step-heading"><span>05 / 05 · 行动与复盘</span><h3 id="step-title-5" tabindex="-1">记录这次决定和回看的条件</h3></div>
+      <div id="action-fields" class="fields single"></div><label class="inline"><input id="confirm-facts" type="checkbox">我已核对本次输入，理解哪些是事实、估计和假设。</label>
+      <p class="muted">改变工作安排前，需自行确认职责、计酬、照护安排与可退出条件。记录决定不会替你执行任何操作。</p><button id="save-record" class="primary">存入决策档案</button>
+    </section>
+    <details id="sources-panel"><summary>关键输入来源 · 与数值一起保存</summary><p class="muted">修改数值后，原来源需要重新确认。可以记录账单、工资约定或个人估计的日期与依据，无需上传凭证。</p><div id="source-fields"></div></details>
+    <div class="step-controls"><button id="previous-step">上一步</button><span id="step-position" class="muted"></span><button id="next-step" class="primary">下一步</button></div>
+  </section>
+  <section id="archive" class="archive" aria-labelledby="archive-title">
+    <div class="section-heading"><div><span class="eyebrow">保留当时的依据</span><h2 id="archive-title">决策档案与复盘</h2></div><span id="record-count" class="muted"></span></div>
+    <label class="field"><span>选择已保存的决策</span><select id="record-select"></select></label>
+    <div id="record-summary"></div><div class="commands"><button id="preview-report">预览一页报告</button><button id="download-report">下载离线报告</button></div>
+    <iframe id="report-preview" title="决策报告预览" sandbox="" referrerpolicy="no-referrer" hidden></iframe>
+    <div id="review-panel" hidden><h3>追加实际记录</h3><p class="muted">金额按你填写的观察期汇总；这些实际值供回看，不自动改写当时的预测。</p><div class="fields"><label class="field">观察截止日期<input id="review-date" type="date"></label><label class="field">实际收入合计（元，可留空）<input id="review-income" type="number" min="0" max="1000000000" step="0.01"></label><label class="field">实际支出合计（元，可留空）<input id="review-expenses" type="number" min="0" max="1000000000" step="0.01"></label></div><label class="field">实际执行与预期有什么不同？<textarea id="review-note" maxlength="2000" rows="3"></textarea></label><label class="field">下一步怎样调整？<textarea id="review-next" maxlength="2000" rows="2"></textarea></label><button id="append-review">保存这次复盘</button><div id="review-history"></div><details><summary>删除这条档案</summary><label class="inline"><input id="confirm-delete" type="checkbox">确认删除所选档案及其复盘</label><button id="delete-record">删除档案</button></details></div>
+    <div class="data-tools"><h3>数据备份与导入</h3><p class="muted">记录保存在当前浏览器与文件位置。发给别人的是程序；转移自己的记录，请另行导出并导入数据。1.2 继续使用原数据空间。</p><div class="commands"><button id="export-data">导出全部数据</button><label class="file-button">选择 1.3 数据文件<input id="import-data" type="file" accept=".json,application/json"></label></div><div id="import-preview" class="notice" hidden><p id="import-description"></p><p>确认后将替换当前草稿和全部档案。替换前会自动下载一份当前数据备份，请确认已保存。</p><div class="commands"><button id="confirm-import">备份当前数据并确认替换</button><button id="cancel-import">取消</button></div></div></div>
+  </section>
+  <section id="method" class="method" aria-labelledby="method-title"><h2 id="method-title">计算依据与版本边界</h2><div class="method-grid"><div><h3>收入与资金</h3><p>固定、按时、计件及混合收入按约定规则计算；每周按时收入乘以 52/12 换为月收入。现金计入收入，扣支出、利息、还本与一次性费用。还本同时减少债务。</p></div><div><h3>市场与流动性</h3><p>市场回报作用于投资资产，不自动转为可花现金。现金不足时显示缺口并停止该路径，不自动借款或卖出资产。个人压力不会改变同一资产的市场路径。</p></div><div><h3>完整的人</h3><p>身体、认知、情绪、关系与价值取舍由你记录，财务结果单独核算。尚未验证的生活影响保留为观察与假设，不生成精确的人生总分。</p></div><div><h3>版本与隐私</h3><p>1.3 使用独立存储，不修改或自动导入 1.2。旧模型和实验工具保留在 1.2 目录。本文件离线计算，无账户连接、远程上传或具体证券推荐。</p></div></div></section>
+  <footer><span>Financial Human Model · 1.3 · MIT</span><span>共同创作者：zjyu1712-zjy / 3748019-gif</span></footer>
+</main>
+<noscript>请允许浏览器执行 JavaScript 后使用本地计算。</noscript>
+<script defer src="app.offline.js"></script>
+</body></html>
