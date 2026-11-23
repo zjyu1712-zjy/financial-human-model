@@ -1,0 +1,127 @@
+{
+  "method": "Real in-app browser through CUA; final copied standalone HTML",
+  "date": "2026-11-18",
+  "standaloneSHA256": "a7bb0c80ec4a7567b41a527d40f11624030d45ad00357c4b9ec4961fc3d3b68e",
+  "checks": [
+    {
+      "overflow": false,
+      "pageWidth": 390,
+      "step": "1 说明选择",
+      "width": 390
+    },
+    {
+      "overflow": false,
+      "pageWidth": 390,
+      "step": "2 确认现状",
+      "width": 390
+    },
+    {
+      "overflow": false,
+      "pageWidth": 390,
+      "step": "3 改变安排",
+      "width": 390
+    },
+    {
+      "overflow": false,
+      "pageWidth": 390,
+      "step": "4 对照结果",
+      "width": 390
+    },
+    {
+      "overflow": false,
+      "pageWidth": 390,
+      "step": "5 记录决定",
+      "width": 390
+    },
+    {
+      "overflow": false,
+      "pageWidth": 720,
+      "step": "1 说明选择",
+      "width": 720
+    },
+    {
+      "overflow": false,
+      "pageWidth": 720,
+      "step": "2 确认现状",
+      "width": 720
+    },
+    {
+      "overflow": false,
+      "pageWidth": 720,
+      "step": "3 改变安排",
+      "width": 720
+    },
+    {
+      "overflow": false,
+      "pageWidth": 720,
+      "step": "4 对照结果",
+      "width": 720
+    },
+    {
+      "overflow": false,
+      "pageWidth": 720,
+      "step": "5 记录决定",
+      "width": 720
+    },
+    {
+      "overflow": false,
+      "pageWidth": 1024,
+      "step": "1 说明选择",
+      "width": 1024
+    },
+    {
+      "overflow": false,
+      "pageWidth": 1024,
+      "step": "2 确认现状",
+      "width": 1024
+    },
+    {
+      "overflow": false,
+      "pageWidth": 1024,
+      "step": "3 改变安排",
+      "width": 1024
+    },
+    {
+      "overflow": false,
+      "pageWidth": 1024,
+      "step": "4 对照结果",
+      "width": 1024
+    },
+    {
+      "overflow": false,
+      "pageWidth": 1024,
+      "step": "5 记录决定",
+      "width": 1024
+    },
+    {
+      "overflow": false,
+      "pageWidth": 1440,
+      "step": "1 说明选择",
+      "width": 1440
+    },
+    {
+      "overflow": false,
+      "pageWidth": 1440,
+      "step": "2 确认现状",
+      "width": 1440
+    },
+    {
+      "overflow": false,
+      "pageWidth": 1440,
+      "step": "3 改变安排",
+      "width": 1440
+    },
+    {
+      "overflow": false,
+      "pageWidth": 1440,
+      "step": "4 对照结果",
+      "width": 1440
+    },
+    {
+      "overflow": false,
+      "pageWidth": 1440,
+      "step": "5 记录决定",
+      "width": 1440
+    }
+  ]
+}
