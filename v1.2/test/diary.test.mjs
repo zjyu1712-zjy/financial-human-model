@@ -100,6 +100,20 @@ test('daily draft, helper step and confirmed observations survive export and imp
   const w=await boot();await w.get('import').onchange({target:{files:[{size:100,text:async()=>JSON.stringify(data)}]}});
   assert.deepEqual(w.saved().sleepDiary,v.saved().sleepDiary);
 });
+test('diary UI uses a fixed local today and rejects tomorrow without changing observations',async()=>{
+  const u=await boot();
+  assert.equal(u.get('diary-date').value,'2026-11-18');
+  assert.equal(u.get('diary-date').max,'2026-11-18');
+  u.get('diary-date').value='2026-11-19';u.get('diary-date').onchange();
+  for(const [k,v] of [['hours','8'],['fatigue','2'],['quality','4'],['context','free']]){
+    u.get('diary-'+k).value=v;u.get('diary-'+k).oninput();
+  }
+  const before=u.saved();u.get('diary-save').onclick();
+  assert.deepEqual(u.saved(),before);assert.match(u.get('diary-message').textContent,/还没到/);
+  u.get('diary-date').value='2026-11-18';u.get('diary-save').onclick();
+  assert.equal(u.saved().sleepDiary.records.length,1);
+  assert.equal(u.saved().sleepDiary.records[0].date,'2026-11-18');
+});
 test('switching dates keeps separate unfinished entries and editing or undoing deletion is safe',async()=>{
   const u=await boot();u.get('diary-date').value='2026-10-27';u.get('diary-date').onchange();u.get('diary-hours').value='7';u.get('diary-hours').oninput();
   u.get('diary-date').value='2026-10-28';u.get('diary-date').onchange();u.get('diary-hours').value='8';u.get('diary-hours').oninput();
@@ -123,6 +137,38 @@ test('adoption updates linked plans but preserves notes, fixed examples and unap
   assert.equal(v.get('guide-note').value,'我的草稿');assert.equal(v.get('demo-results').innerHTML,demo);assert.equal(JSON.stringify(v.saved().experiment.baseline),baseline);
   assert.equal(v.get('schedule').value,'{"2":{"work":38}}');
 });
+for(const [today,canAdopt] of [['2026-11-22',true],['2026-11-23',false]]){
+  test(`recovery adoption ${canAdopt?'accepts 28-day-old':'rejects 29-day-old'} records without rewriting history`,async()=>{
+    const u=await boot();u.choose('work');u.get('guide-note').value='保留我的复盘';u.get('guide-note').oninput();
+    u.get('trial-start-date').value='2026-10-29';u.get('trial-review-date').value='2026-11-05';
+    u.get('trial-intent').value='试行一周后回看';u.get('trial-stop').value='影响必要工作时暂停';u.get('trial-create').onclick();
+    assert.equal(u.saved().trialArchive.length,1);
+    const data=u.saved();data.sleepDiary=synthetic().d;data.sleepDiary.open=true;data.sleepDiary.step=3;
+    const v=await boot('#guide',new Map([[WORKSPACE_KEY,JSON.stringify(data)]]),false,null,{today});
+    const before=v.saved(),stored=v.storage.get(WORKSPACE_KEY),comparisons=v.get('guide-comparisons').innerHTML;
+    const button=v.get('diary-adopt-recovery');
+    assert.equal(button.disabled,!canAdopt);
+    // Invoke even a disabled button's handler to check the action-level stale-data guard.
+    button.onclick();
+    const after=v.saved(),expectedRate=canAdopt ? .45 : .3;
+    near(after.experiment.current.parameters.fatigueRecovery,expectedRate);
+    near(Number(v.get('parameters-fatigueRecovery').value),expectedRate);
+    assert.deepEqual(after.trialArchive,before.trialArchive);
+    assert.deepEqual(after.experiment.baseline,before.experiment.baseline);
+    assert.deepEqual(after.sleepDiary.records,before.sleepDiary.records);
+    assert.deepEqual(after.sleepDiary.weeks,before.sleepDiary.weeks);
+    assert.equal(v.get('guide-note').value,'保留我的复盘');
+    if(canAdopt){
+      assert.match(v.get('diary-message').textContent,/已采用/);
+    }else{
+      assert.match(v.get('diary-fit-status').textContent,/超过28天/);
+      assert.match(v.get('diary-message').textContent,/超过28天/);
+      assert.equal(v.storage.get(WORKSPACE_KEY),stored);
+      assert.deepEqual(after,before);
+      assert.equal(v.get('guide-comparisons').innerHTML,comparisons);
+    }
+  });
+}
 test('1.1 workspace and trial import retain values without overwriting old keys',async()=>{
   const u=await boot();u.choose('work');u.get('guide-save').onclick();const value=u.saved();value.format='financial-human-workspace-v1.1';
   value.experiment.format='financial-human-experiment-v1.1';for(const s of [value.experiment.current,value.experiment.baseline])s.version='1.1.0';delete value.sleepDiary;
