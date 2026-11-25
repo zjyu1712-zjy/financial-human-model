@@ -170,6 +170,8 @@ $$S_{\text{actual}} = S_{\text{plan}} + \left( B_{\text{slack}} - B_{\text{slack
 
 ### 输出耦合接口：资金分配（元/期）$\times$ 每周新增执行时间 $\Delta H_{\text{exec}}$（小时/周）
 
+> 2026-11-25 后续更新：[时间资源指标设计基线](./time-resource-spec.md)已将本节的每周总量校验细化为按规划期实际日数、四类时段、两类睡眠底线与休息留白的校验。后续时间规则以该文档为准；本节公式及下方案例保留为早期设计记录，尚未改为新版实现。
+
 承接[1.2 模型规范](../v1.2/MODEL_SPEC.txt#L32-L39)与[睡眠规范](../v1.2/SLEEP_MODEL.txt)的每周 168 小时时间守恒，对所有用于腾挪预算或补救情绪超支的“以时间换金钱”调整项 $j$，同时核算规划期资金节省 $\Delta m_j$（元/期）与折算每周新增耗时 $\Delta h_j$（小时/周）：
 
 $$H_{\text{free}} = 168 - \left( H_{\text{work}} + H_{\text{commute}} + H_{\text{care}} + H_{\text{fixed\_other}} + H_{\text{sleep\_min}} \right)$$
