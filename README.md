@@ -6,8 +6,10 @@
 
 **本余——基于AI与行为经济学的青年生活资源智能规划平台**，面向 22–28 岁刚进入社会、开始独立生活的年轻人，围绕金钱与时间分配、个性化定制和猫咪情绪陪伴，帮助用户兼顾个人热爱、生活与储蓄准备。
 
+当前衍生产品规范为 **v1.18 Frozen（2026-11-28）**：加入四个心理账户、四层可解释决策引擎、月内现金流与多目标取舍、季度会员及数据质量规则；先以 Web MVP 验证，再按 P0–P3 向独立 App 演进。
+
 - [衍生产品说明](./derived-products/life-budget/README.md)
-- [产品与商业框架冻结总规范 v1.1](./derived-products/life-budget/product_spec_frozen.md)
+- [产品与商业框架冻结总规范 v1.18](./derived-products/life-budget/product_spec_frozen.md)
 - [本余主仓库 life-budget](https://github.com/zjyu1712-zjy/life-budget)
 
 本余承接有限资源分配与取舍的研究思路，采用独立的产品规则和实现计划。旧模型的复杂指标、公式和测试结果不自动成为本余的必选方案或验证结论。
